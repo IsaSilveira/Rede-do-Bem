@@ -1,114 +1,58 @@
-# Plano de Testes de Software - Rede do Bem
+# Plano de Testes de Software — Rede do Bem
+> **Data:** Junho 2026
 
-Este documento descreve os cenários de teste para validar se o sistema **Rede do Bem** atende aos requisitos funcionais (RF) definidos na especificação do projeto.
+Este documento consolida e padroniza, em formato de tabela, os casos de teste das duas rodadas realizadas para validar o sistema **Rede do Bem** frente aos requisitos funcionais (RF) e não funcionais (RNF) do projeto.
 
----
 
-### CT01 – Autenticação e Conta (Perfis Distintos)
-| Campo | Detalhes |
-| :--- | :--- |
-| **Requisito Associado** | **RF01, RF02, RF03** |
-| **Objetivo** | Verificar cadastro, login, recuperação de senha e edição de perfil para diferentes tipos de usuários. |
-| **Passos** | 1. Acessar tela de cadastro.<br>2. Preencher dados válidos.<br>3. Selecionar tipo de perfil (Doador/Instituição).<br>4. Realizar login com credenciais.<br>5. Solicitar recuperação de senha. <br> 6. Editar informações do perfil. |
-| **Critério de Êxito** | Usuário consegue se cadastrar, logar, recuperar senha e editar perfil corretamente, com validações funcionando. |
+**Perfis de usuário considerados:** Doador (visualiza campanhas, filtra por localização/tipo, cria campanhas, favorita instituições e recebe notificações) e Instituição (cria e gerencia campanhas, valida doações, acessa dashboard e gerencia perfil público). Ambos os perfis podem criar campanhas; restrições de edição/exclusão se aplicam apenas a campanhas do próprio usuário.
 
----
+**Legenda de prioridade:** 🔴 Alta · 🟡 Média · 🔵 Baixa
+**Legenda de status:** ⬜ Passou · ⬜ Falhou · ⬜ Bloqueado
 
-### CT02 – Exploração por Localização
-| Campo | Detalhes |
-| :--- | :--- |
-| **Requisito Associado** | **RF04, RF05, RF06, RF09**  |
-| **Objetivo** |Validar exibição de campanhas e instituições com base na localização. |
-| **Passos** | 1. Acessar lista de campanhas.<br>2. Acessar mapa interativo.<br>3. Ativar localização.<br>4. Aplicar filtro por localização. |
-| **Critério de Êxito** | Sistema exibe campanhas corretamente em lista e mapa, priorizando por proximidade e aplicando filtros. |
+| ID | Título | UC | Requisito | Prioridade | Perfil | Objetivo | Pré-condições | Passos | Resultado Esperado | Pós-condições | Status |
+|----|--------|----|-----------|------------|--------|----------|----------------|--------|----------------------|-----------------|--------|
+| CT-001 | Cadastro de usuário Doador com dados válidos | UC01 | RF01 | 🔴 Alta | Doador | Verificar se um novo Doador consegue se cadastrar com sucesso. | Sistema online. Nenhuma conta com o e-mail de teste existente. | 1. Acessar tela de cadastro.<br>2. Preencher nome, e-mail válido, senha e confirmação.<br>3. Selecionar perfil Doador.<br>4. Clicar em Cadastrar. | Conta criada com sucesso. Usuário redirecionado para a tela principal com funcionalidades de Doador. | Conta do Doador existente no banco de dados. | ⬜ |
+| CT-002 | Cadastro de usuário Instituição com dados válidos e dados registrados no perfil | UC01 | RF01 | 🔴 Alta | Instituição | Verificar se uma Instituição consegue se cadastrar corretamente e se os dados são salvos e exibidos no perfil. | Sistema online. E-mail de teste não cadastrado. | 1. Acessar tela de cadastro.<br>2. Preencher nome, e-mail, senha, endereço, telefone e demais dados.<br>3. Selecionar perfil Instituição.<br>4. Clicar em Cadastrar.<br>5. Após login, acessar perfil.<br>6. Verificar dados exibidos. | Conta criada com sucesso. Dados preenchidos exibidos corretamente no perfil. | Conta da Instituição existente no banco com todos os dados registrados. | ⬜ |
+| CT-003 | Cadastro com e-mail já existente | UC01 | RF01 | 🔴 Alta | Doador / Instituição | Verificar que o sistema impede cadastro duplicado. | E-mail de teste já cadastrado no sistema. | 1. Acessar tela de cadastro.<br>2. Inserir e-mail já existente.<br>3. Preencher demais campos.<br>4. Clicar em Cadastrar. | Sistema exibe mensagem de erro informando que o e-mail já está em uso. | Nenhuma conta duplicada criada. | ⬜ |
+| CT-004 | Cadastro com campos obrigatórios em branco | UC01 | RF01 | 🔴 Alta | Doador / Instituição | Verificar validação de campos obrigatórios no cadastro. | Sistema online. | 1. Acessar tela de cadastro.<br>2. Deixar campos obrigatórios em branco.<br>3. Clicar em Cadastrar. | Sistema exibe mensagens de validação indicando campos não preenchidos. | Nenhuma conta criada. | ⬜ |
+| CT-005 | Login com credenciais válidas (Doador) | UC01 | RF01 | 🔴 Alta | Doador | Verificar acesso ao sistema como Doador com credenciais corretas. | Conta Doador existente e ativa. | 1. Acessar tela de login.<br>2. Inserir e-mail e senha corretos.<br>3. Clicar em Entrar. | Usuário autenticado e redirecionado para a tela principal com funcionalidades de Doador. | Sessão ativa como Doador. | ⬜ |
+| CT-006 | Login com credenciais válidas (Instituição) | UC01 | RF01 | 🔴 Alta | Instituição | Verificar acesso ao sistema como Instituição com credenciais corretas. | Conta Instituição existente e ativa. | 1. Acessar tela de login.<br>2. Inserir e-mail e senha corretos.<br>3. Clicar em Entrar. | Usuário autenticado e redirecionado com funcionalidades de Instituição, incluindo Dashboard. | Sessão ativa como Instituição. | ⬜ |
+| CT-007 | Login com senha incorreta | UC01 | RF01 | 🔴 Alta | Doador / Instituição | Verificar que o sistema rejeita credenciais inválidas. | Conta existente. | 1. Acessar tela de login.<br>2. Inserir e-mail correto e senha errada.<br>3. Clicar em Entrar. | Sistema exibe mensagem de erro sem revelar qual campo está errado. | Nenhuma sessão criada. | ⬜ |
+| CT-008 | Login com e-mail não cadastrado | UC01 | RF01 | 🔴 Alta | Doador / Instituição | Verificar comportamento com e-mail inexistente. | Sistema online. | 1. Acessar tela de login.<br>2. Inserir e-mail não cadastrado e qualquer senha.<br>3. Clicar em Entrar. | Sistema exibe mensagem de erro genérica sem indicar se o e-mail existe. | Nenhuma sessão criada. | ⬜ |
+| CT-009 | Recuperação de senha com e-mail válido | UC01 | RF02 | 🔴 Alta | Doador / Instituição | Verificar o fluxo de recuperação de senha. | Conta existente com e-mail válido. | 1. Acessar tela de login.<br>2. Clicar em "Esqueci minha senha".<br>3. Inserir e-mail cadastrado.<br>4. Clicar em Enviar. | Sistema confirma envio do link. E-mail recebido com link funcional para redefinir senha. | Token de recuperação gerado. | ⬜ |
+| CT-010 | Recuperação de senha com e-mail inexistente | UC01 | RF02 | 🔴 Alta | Doador / Instituição | Verificar comportamento ao solicitar recuperação para e-mail não cadastrado. | Sistema online. | 1. Acessar "Esqueci minha senha".<br>2. Inserir e-mail não cadastrado.<br>3. Clicar em Enviar. | Sistema exibe mensagem genérica sem revelar se o e-mail existe (prevenção de enumeração). | Nenhum e-mail enviado. | ⬜ |
+| CT-011 | Editar dados de perfil (Doador) | UC01 | RF03 | 🔴 Alta | Doador | Verificar que o Doador consegue editar seus dados na tela de perfil. | Usuário Doador autenticado. | 1. Acessar "Meu Perfil".<br>2. Editar nome, contato e endereço.<br>3. Salvar.<br>4. Verificar atualização. | Dados atualizados e exibidos corretamente na tela de perfil. | Banco de dados atualizado. | ⬜ |
+| CT-012 | Editar dados de perfil (Instituição) e verificar atualização para outros usuários | UC01 | RF03 | 🔴 Alta | Instituição | Verificar que a Instituição consegue editar dados e que as atualizações são refletidas para outros usuários. | Usuário Instituição autenticado. Outro usuário (Doador) disponível para validação. | 1. Login como Instituição e acessar "Meu Perfil".<br>2. Editar nome, descrição, endereço, telefone.<br>3. Salvar.<br>4. Login como Doador e acessar perfil da instituição.<br>5. Verificar dados atualizados. | Dados atualizados no perfil e visíveis corretamente para outros usuários. | Banco de dados atualizado e exibição consistente para todos os usuários. | ⬜ |
+| CT-013 | Upload de foto de perfil | UC01 | RF03 | 🔴 Alta | Doador / Instituição | Verificar upload de imagem para o perfil. | Usuário autenticado (Doador ou Instituição). | 1. Acessar "Meu Perfil".<br>2. Clicar em alterar foto.<br>3. Selecionar imagem válida (JPG/PNG).<br>4. Salvar. | Foto exibida corretamente no perfil após o upload. | Imagem armazenada e exibida no perfil. | ⬜ |
+| CT-014 | Visualizar campanhas priorizadas por proximidade (Doador) | UC02 | RF04 | 🔴 Alta | Doador | Verificar que campanhas próximas aparecem primeiro para o Doador. | Doador autenticado com localização ativa. Campanhas em diferentes locais cadastradas. | 1. Acessar tela de campanhas.<br>2. Permitir acesso à localização.<br>3. Observar ordenação. | Campanhas mais próximas à localização do Doador aparecem no topo da lista. | Lista ordenada por proximidade. | ⬜ |
+| CT-015 | Visualizar lista de todas as campanhas | UC02 | RF05 | 🔴 Alta | Doador / Instituição | Verificar exibição completa de campanhas ativas em lista para qualquer usuário. | Usuário autenticado. Campanhas ativas cadastradas por outros usuários. | 1. Acessar tela de campanhas.<br>2. Verificar a lista exibida. | Todas as campanhas ativas de outros usuários aparecem em lista com informações básicas. | Nenhuma. | ⬜ |
+| CT-016 | Campanhas do próprio usuário logado não aparecem na tela Home | UC02 | RF05 | 🔴 Alta | Doador / Instituição | Verificar que o usuário não vê suas próprias campanhas na listagem principal da Home. | Usuário autenticado com campanhas próprias cadastradas. | 1. Login com usuário que possui campanhas.<br>2. Acessar Home/listagem.<br>3. Verificar se aparecem campanhas próprias. | Campanhas criadas pelo usuário logado não aparecem na Home. Apenas campanhas de outros usuários são exibidas. | Nenhuma. | ⬜ |
+| CT-017 | Visualizar campanhas e instituições no mapa | UC02 | RF06 | 🔴 Alta | Doador / Instituição | Verificar funcionamento do mapa interativo. | Usuário autenticado. Campanhas com endereço cadastradas. | 1. Acessar tela de mapa.<br>2. Verificar pins das campanhas.<br>3. Clicar em um pin. | Mapa carrega corretamente com pins. Clique no pin exibe informações básicas. | Nenhuma. | ⬜ |
+| CT-018 | Visualizar detalhes de uma campanha | UC02 | RF07 | 🔴 Alta | Doador / Instituição | Verificar exibição completa dos detalhes de uma campanha. | Campanha ativa com todos os dados preenchidos. | 1. Acessar lista de campanhas.<br>2. Selecionar uma campanha.<br>3. Verificar detalhes exibidos. | Página exibe fotos, descrição, contato, tipo de doação, horário de funcionamento e nota corretamente. | Nenhuma. | ⬜ |
+| CT-019 | Visualizar campanhas de uma instituição específica | UC02 | RF08 | 🔴 Alta | Doador / Instituição | Verificar filtragem de campanhas por instituição. | Instituição com campanhas cadastradas. | 1. Acessar perfil de uma instituição.<br>2. Verificar seção de campanhas. | Apenas campanhas da instituição selecionada são exibidas. | Nenhuma. | ⬜ |
+| CT-020 | Visualizar lista de instituições | UC02 | RF05 | 🔴 Alta | Doador / Instituição | Verificar se a listagem de instituições cadastradas é exibida corretamente. | Usuário autenticado. Ao menos uma instituição cadastrada. | 1. Acessar seção de instituições.<br>2. Verificar lista.<br>3. Confirmar nome, foto e infos básicas. | Lista de instituições exibida corretamente com informações de cada uma. | Nenhuma. | ⬜ |
+| CT-021 | Filtrar campanhas por localização no mapa | UC03 | RF09 | 🔴 Alta | Doador / Instituição | Verificar filtro de localização no mapa interativo. | Mapa com campanhas carregado. | 1. Acessar mapa.<br>2. Definir área/raio de busca.<br>3. Aplicar filtro. | Apenas campanhas dentro da área filtrada são exibidas no mapa. | Nenhuma. | ⬜ |
+| CT-022 | Filtrar campanhas por tipo de doação — Alimentos | UC03 | RF10 | 🔴 Alta | Doador / Instituição | Verificar filtro por tipo Alimentos. | Campanhas de tipos variados cadastradas. | 1. Acessar lista de campanhas.<br>2. Aplicar filtro Alimentos.<br>3. Verificar resultados. | Apenas campanhas do tipo Alimentos são exibidas. | Nenhuma. | ⬜ |
+| CT-023 | Filtrar campanhas por tipo de doação — Roupas | UC03 | RF10 | 🔴 Alta | Doador / Instituição | Verificar filtro por tipo Roupas. | Campanhas de tipos variados cadastradas. | 1. Acessar lista de campanhas.<br>2. Aplicar filtro Roupas.<br>3. Verificar resultados. | Apenas campanhas do tipo Roupas são exibidas. | Nenhuma. | ⬜ |
+| CT-024 | No cadastro de nova campanha, cadastrar novo item e selecioná-lo nas opções | UC03 | RF10 | 🔴 Alta | Doador / Instituição | Verificar que qualquer usuário consegue cadastrar um novo tipo de doação e que ele fica disponível como opção em campanhas futuras. | Usuário autenticado (Doador ou Instituição). | 1. Acessar Nova Campanha.<br>2. No campo de tipo de doação, adicionar novo tipo.<br>3. Cadastrar tipo (ex: Brinquedos).<br>4. Selecionar e salvar.<br>5. Criar 2ª campanha e verificar se o tipo está disponível. | Novo tipo cadastrado aparece como opção ao criar/editar qualquer campanha, pelo próprio usuário e por outros. | Novo tipo persistido e disponível globalmente no sistema. | ⬜ |
+| CT-025 | Criar campanha com todos os dados válidos e horário de funcionamento | UC04 | RF11 | 🔴 Alta | Doador / Instituição | Verificar criação completa de campanha incluindo horário de funcionamento. | Usuário autenticado (Doador ou Instituição). | 1. Acessar Nova Campanha.<br>2. Preencher nome, descrição, local, datas e tipo de doação.<br>3. Preencher horário (ex: 08:00–18:00).<br>4. Salvar. | Campanha criada com todos os dados e horário exibidos corretamente. | Campanha ativa no banco de dados, visível para outros usuários. | ⬜ |
+| CT-026 | Criar campanha com data de fim anterior à data de início | UC04 | RF11 | 🔴 Alta | Doador / Instituição | Verificar validação de datas incoerentes. | Usuário autenticado (Doador ou Instituição). | 1. Acessar Nova Campanha.<br>2. Definir data de fim anterior à de início.<br>3. Tentar salvar. | Sistema exibe mensagem de erro de validação de datas. Campanha não criada. | Nenhuma campanha criada. | ⬜ |
+| CT-027 | Criar campanha com campos obrigatórios em branco | UC04 | RF11 | 🔴 Alta | Doador / Instituição | Verificar validação de campos obrigatórios na criação de campanha. | Usuário autenticado (Doador ou Instituição). | 1. Acessar Nova Campanha.<br>2. Deixar campos obrigatórios vazios.<br>3. Tentar salvar. | Sistema destaca campos obrigatórios e exibe mensagens de validação. Campanha não criada. | Nenhuma campanha criada. | ⬜ |
+| CT-028 | Editar campanha própria | UC04 | RF11 | 🔴 Alta | Doador / Instituição | Verificar que qualquer usuário consegue editar suas próprias campanhas. | Campanha criada pelo usuário logado. | 1. Acessar campanha de sua autoria.<br>2. Clicar em Editar.<br>3. Alterar descrição, horário ou data.<br>4. Salvar. | Campanha atualizada com os novos dados exibidos corretamente. | Dados atualizados no banco de dados. | ⬜ |
+| CT-029 | Excluir campanha própria | UC04 | RF11 | 🔴 Alta | Doador / Instituição | Verificar que qualquer usuário consegue excluir suas próprias campanhas. | Campanha criada pelo usuário logado. | 1. Acessar campanha de sua autoria.<br>2. Clicar em Excluir.<br>3. Confirmar exclusão. | Campanha removida da listagem pública e não exibida para outros usuários. | Campanha excluída ou marcada como inativa no banco de dados. | ⬜ |
+| CT-030 | Tentativa de editar campanha de outro usuário | UC04 | RF11 | 🔴 Alta | Doador / Instituição | Verificar que nenhum usuário consegue editar campanhas criadas por outros. | Dois usuários distintos com campanhas diferentes cadastradas. | 1. Login como Usuário A.<br>2. Acessar campanha do Usuário B.<br>3. Tentar clicar em Editar. | Opção de edição não disponível ou acesso negado com mensagem de erro. Campanha do Usuário B não alterada. | Campanha do Usuário B intacta. | ⬜ |
+| CT-031 | Tentativa de excluir campanha de outro usuário | UC04 | RF11 | 🔴 Alta | Doador / Instituição | Verificar que nenhum usuário consegue excluir campanhas criadas por outros. | Dois usuários distintos com campanhas diferentes cadastradas. | 1. Login como Usuário A.<br>2. Acessar campanha do Usuário B.<br>3. Tentar clicar em Excluir. | Opção de exclusão não disponível ou acesso negado com mensagem de erro. | Campanha do Usuário B intacta. | ⬜ |
+| CT-032 | Campanhas ativas e histórico no perfil do usuário | UC04 | RF11 | 🔴 Alta | Doador / Instituição | Verificar que as campanhas do usuário aparecem no perfil divididas em ativas e histórico. | Usuário autenticado com campanhas ativas e encerradas. | 1. Login com o usuário.<br>2. Acessar "Meu Perfil".<br>3. Verificar seção de ativas.<br>4. Verificar seção de histórico. | Campanhas ativas e encerradas aparecem separadas. Histórico exibe campanhas com data de fim já passada. | Nenhuma. | ⬜ |
+| CT-033 | Campanha expirada some da listagem e permanece no histórico | UC04 | RF11 | 🔴 Alta | Doador / Instituição | Verificar que, ao atingir a data de fim, a campanha é removida da listagem pública e mantida apenas no histórico do criador. | Campanha com data de fim vencida cadastrada. | 1. Aguardar/simular a data de fim.<br>2. Verificar listagem pública.<br>3. Acessar perfil do criador.<br>4. Verificar histórico. | Campanha não aparece na listagem pública. Aparece corretamente no histórico do perfil do criador. | Campanha marcada como expirada no banco de dados. | ⬜ |
+| CT-034 | Visualizar quantidade de doadores de uma campanha | UC04 | RF12 | 🟡 Média | Doador / Instituição | Verificar contagem de doadores em uma campanha. | Campanha com doações registradas. | 1. Acessar detalhes de uma campanha.<br>2. Verificar contador de doadores. | Número correto de doadores exibido de forma clara na página da campanha. | Nenhuma. | ⬜ |
+| CT-035 | Validar doação realizada | UC04 | RF13 | 🟡 Média | Doador / Instituição | Verificar que o criador da campanha consegue confirmar uma doação realizada. | Doação pendente de validação na campanha do usuário logado. | 1. Acessar painel da campanha como criador.<br>2. Localizar doação pendente.<br>3. Clicar em Validar. | Doação marcada como validada e contabilizada no contador de doadores. | Contador de doadores atualizado. | ⬜ |
+| CT-036 | Gerar link de compartilhamento de campanha | UC05 | RF14 | 🔵 Baixa | Doador / Instituição | Verificar geração de link externo para compartilhamento. | Campanha ativa. | 1. Acessar uma campanha.<br>2. Clicar em Compartilhar.<br>3. Copiar o link.<br>4. Acessar em aba anônima. | Link funcional gerado e acessível por usuários não logados, exibindo informações da campanha. | Nenhuma. | ⬜ |
+| CT-037 | Favoritar instituição (Doador) | UC06 | RF15 | 🟡 Média | Doador | Verificar funcionalidade de favoritar uma instituição. | Doador autenticado. | 1. Acessar perfil de uma instituição.<br>2. Clicar em Favoritar. | Instituição adicionada à lista de favoritos do Doador. | Registro de favorito criado no banco de dados. | ⬜ |
+| CT-038 | Desfavoritar instituição (Doador) | UC06 | RF15 | 🟡 Média | Doador | Verificar remoção de favorito. | Instituição já favoritada pelo Doador. | 1. Acessar lista de favoritos ou perfil da instituição.<br>2. Clicar em Desfavoritar. | Instituição removida dos favoritos do Doador. | Registro de favorito removido do banco de dados. | ⬜ |
+| CT-039 | Denunciar ponto de coleta (Doador) | UC06 | RF16 | 🟡 Média | Doador | Verificar fluxo de denúncia de campanha ou instituição. | Doador autenticado. | 1. Acessar campanha ou instituição.<br>2. Clicar em Denunciar.<br>3. Selecionar motivo.<br>4. Confirmar. | Denúncia registrada com sucesso e confirmação exibida ao usuário. | Denúncia registrada no banco de dados. | ⬜ |
+| CT-040 | Acessar dashboard com métricas do perfil (Instituição) | UC07 | RF17 | 🔴 Alta | Instituição | Verificar exibição do dashboard com métricas para a Instituição. | Instituição autenticada com campanhas e dados históricos. | 1. Login como Instituição.<br>2. Acessar Dashboard.<br>3. Verificar métricas exibidas. | Dashboard exibe corretamente número de campanhas, doações recebidas e demais métricas. | Nenhuma. | ⬜ |
+| CT-041 | Dashboard sem dados históricos (Instituição recém-criada) | UC07 | RF17 | 🟡 Média | Instituição | Verificar exibição do dashboard quando não há dados históricos. | Instituição recém-criada sem campanhas ou doações. | 1. Login como Instituição recém-cadastrada.<br>2. Acessar Dashboard. | Dashboard exibe estado vazio com mensagem orientativa, sem erros ou telas em branco. | Nenhuma. | ⬜ |
+| CT-042 | Receber notificação de nova campanha próxima (Doador) | UC08 | RF18 | 🟡 Média | Doador | Verificar envio de notificação por proximidade geográfica. | Doador com localização ativa. Nova campanha criada próxima ao Doador. | 1. Criar campanha próxima à localização do Doador.<br>2. Aguardar/acionar disparo de notificação.<br>3. Verificar aba de notificações. | Notificação recebida com informações da nova campanha próxima. | Notificação registrada e marcada como não lida. | ⬜ |
+| CT-043 | Receber notificação de campanha de instituição favoritada (Doador) | UC08 | RF19 | 🟡 Média | Doador | Verificar envio de notificação quando instituição favoritada cria nova campanha. | Doador com ao menos uma instituição favoritada. | 1. Instituição favoritada cria nova campanha.<br>2. Verificar notificações do Doador. | Notificação recebida informando sobre a nova campanha da instituição favoritada. | Notificação registrada e marcada como não lida. | ⬜ |
+| CT-044 | Clicar em notificação e ir direto para a campanha | UC08 | RF18, RF19 | 🟡 Média | Doador | Verificar que ao clicar em uma notificação o usuário é redirecionado para a campanha correspondente. | Doador com ao menos uma notificação de campanha não lida. | 1. Acessar aba de notificações.<br>2. Clicar em uma notificação de campanha.<br>3. Verificar redirecionamento. | Usuário redirecionado diretamente para a página de detalhes da campanha. Notificação marcada como lida automaticamente. | Notificação marcada como lida. Página de detalhes da campanha aberta. | ⬜ |
 
----
-
-### CT03 – Filtros e Visualização
-| Campo | Detalhes |
-| :--- | :--- |
-| **Requisito Associado** | **RF07, RF08, RF10**  |
-| **Objetivo** | Validar filtros e visualização de detalhes das campanhas e instituições. |
-| **Passos** | 1. Selecionar campanha ou instituição.<br>2. Visualizar detalhes.<br>3. Aplicar filtro por tipo de doação. |
-| **Critério de Êxito** | Detalhes são exibidos corretamente e filtros retornam resultados esperados. |
-
----
-
-### CT04 – Gestão de Campanhas
-| Campo | Detalhes |
-| :--- | :--- |
-| **Requisito Associado** | **RF11, RF12, RF13** |
-| **Objetivo** | Validar criação, edição e controle de campanhas. |
-| **Passos** | 1. Criar nova campanha.<br>2. Editar campanha existente.<br>3. Visualizar número de doadores.<br>4. Validar doação. |
-| **Critério de Êxito** |Campanhas são gerenciadas corretamente e dados exibidos são consistentes. |
-
----
-
-### CT05 – Interação do Usuário
-| Campo | Detalhes |
-| :--- | :--- |
-| **Requisito Associado** | **RF14, RF15, RF16** |
-| **Objetivo** | Validar interações do usuário com o sistema. |
-| **Passos** | 1. Gerar link de compartilhamento.<br>2. Favoritar instituição.<br>3. Realizar denúncia. |
-| **Critério de Êxito** | Ações são executadas corretamente e registradas no sistema. |
-
----
-
-### CT06 –Dashboard e Notificações
-| Campo | Detalhes |
-| :--- | :--- |
-| **Requisito Associado** | **RF17, RF18, RF19** |
-| **Objetivo** | Validar métricas do sistema e envio de notificações. |
-| **Passos** | 1. Acessar dashboard <br> 2. Criar campanha próxima <br> 3. Atualizar instituição favorita |
-| **Critério de Êxito** | Dashboard exibe dados corretamente e notificações são enviadas conforme esperado. |
-
----
-
-### CT07 –Usabilidade e Acessibilidade
-| Campo | Detalhes |
-| :--- | :--- |
-| **Requisito Associado** | **RNF-001, RNF-004** |
-| **Objetivo** | Validar facilidade de uso e acessibilidade do sistema. |
-| **Passos** | 1. Navegar no sistema como novo usuário.<br>2. Testar navegação por teclado.  |
-| **Critério de Êxito** | Sistema é intuitivo e acessível para diferentes usuários. |
-
----
-
-### CT08 – Segurança e LGPD
-| Campo | Detalhes |
-| :--- | :--- |
-| **Requisito Associado** | **RNF-002, RNF-008** |
-| **Objetivo** | Validar segurança dos dados e registro de atividades. |
-| **Passos** | 1. Tentar acessar sem login. <br>2. Realizar ações no sistema |
-| **Critério de Êxito** | Dados protegidos e logs registrados corretamente. |
-
----
-
-### CT09 – Compatibilidade
-| Campo | Detalhes |
-| :--- | :--- |
-| **Requisito Associado** | **RNF-003**|
-| **Objetivo** | Validar funcionamento em diferentes dispositivos. |
-| **Passos** | 1. Acessar via celular. <br> 2. Acessar via desktop. |
-| **Critério de Êxito** | Interface adaptada corretamente em todos os dispositivos. |
-
----
-### CT10 – Performance e Disponibilidade
-| Campo | Detalhes |
-| :--- | :--- |
-| **Requisito Associado** | **RNF-005, RNF-007** |
-| **Objetivo** | Validar desempenho e estabilidade do sistema. |
-| **Passos** | 1. Realizar consultas de campanhas <br>2. Simular uso contínuo. |
-| **Critério de Êxito** | Sistema responde rapidamente e mantém disponibilidade adequada. |
-
----
-
-### CT11 – Arquitetura
-| Campo | Detalhes |
-| :--- | :--- |
-| **Requisito Associado** | **RNF-006** |
-| **Objetivo** | Validar estrutura modular do sistema. |
-| **Passos** | 1. Alterar um módulo do sistema. <br>2. Testar funcionalidade geral. |
-| **Critério de Êxito** | Alterações não afetam outros módulos. |
-
----
