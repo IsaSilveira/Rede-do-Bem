@@ -31,7 +31,7 @@ Nesta seção são apresentados os requisitos funcionais implementados no sistem
 # Instruções de acesso
 
 **Acesso rápido (produção)**
-* URL da aplicação: https://rededobem.azurewebsites.net
+* URL da aplicação: [https://rededobem.azurewebsites.net](https://rede-do-bem-a7gpdxere7bwf4ap.brazilsouth-01.azurewebsites.net)
 * Status: online
 * Ambiente: produção
 
