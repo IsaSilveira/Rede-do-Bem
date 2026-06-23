@@ -1,0 +1,11 @@
+.home-campanhas-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.home-campanha-distancia {
+    font-size: 16px;
+    font-weight: bold;
+    white-space: nowrap;
+}

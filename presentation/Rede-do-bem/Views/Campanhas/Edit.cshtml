@@ -1,0 +1,223 @@
+@model Rede_do_bem.Models.Campanha
+
+@{
+    ViewData["Title"] = "Editar Campanha";
+    var tipos = Model.TipoDoacao?.Split(',').Select(t => t.Trim()).Where(t => !string.IsNullOrEmpty(t)).ToList() ?? new List<string>();
+    var opcoesPadrao = new[] { "Roupas de Frio", "Alimentos", "Dinheiro", "Outros" };
+    
+    string selectedOption = "";
+    if (tipos.Any(t => opcoesPadrao.Contains(t))) {
+        selectedOption = tipos.First(t => opcoesPadrao.Contains(t));
+    } else if (tipos.Any()) {
+        selectedOption = "Outros";
+    }
+
+    var tagsCustomizadas = tipos.Where(t => t != selectedOption).ToList();
+    
+    Model.TipoDoacao = selectedOption;
+}
+
+<div class="container-criacao mt-5">
+    <div class="card-custom bg-pattern">
+
+        <div class="text-center mb-4">
+            <span class="badge-title">Editar sua campanha!</span>
+        </div>
+
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="IdCampanha" />
+
+            <div class="form-group mb-3">
+                <label asp-for="NomeDaCampanha" class="form-label fw-bold"></label>
+                <input asp-for="NomeDaCampanha" class="form-control input-custom" placeholder="Ex: Campanha do Agasalho" />
+                <span asp-validation-for="NomeDaCampanha" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="NomeResponsavel" class="form-label fw-bold"></label>
+                <input asp-for="NomeResponsavel" class="form-control input-custom" placeholder="Seu nome completo" />
+                <span asp-validation-for="NomeResponsavel" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="TelefoneContato" class="form-label fw-bold"></label>
+                <input asp-for="TelefoneContato" class="form-control input-custom" placeholder="(11) 99999-9999" />
+                <span asp-validation-for="TelefoneContato" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="EnderecoRecebimento" class="form-label fw-bold"></label>
+                <input asp-for="EnderecoRecebimento" class="form-control input-custom" placeholder="Digite e selecione o endereço" autocomplete="off" />
+                <input type="hidden" id="enderecoValidoEdit" value="@(Model.EnderecoRecebimento != null ? "1" : "0")" />
+                <span asp-validation-for="EnderecoRecebimento" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-2">
+                <label class="form-label fw-bold">Tipo de Doação</label>
+                <select asp-for="TipoDoacao" class="form-control input-custom form-select">
+                    <option value="" disabled selected>Selecione o tipo de doação</option>
+                    <option value="Roupas de Frio">Roupas de Frio</option>
+                    <option value="Alimentos">Alimentos</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Outros">Outros</option>
+                </select>
+                <span asp-validation-for="TipoDoacao" class="text-danger"></span>
+            </div>
+            
+            <div id="itensContainer">
+                @foreach (var tag in tagsCustomizadas)
+                {
+                    <span class="item-tag">@tag
+                        <input type="hidden" name="TipoDoacao" value="@tag" />
+                    </span>
+                }
+                <button type="button" id="btnAdicionar" class="btn btn-outline-dark btn-sm btn-add-item rounded-pill">
+                    Cadastrar item <i class="bi bi-plus"></i>
+                </button>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-6 form-group">
+                    <label asp-for="DataInicio" class="form-label fw-bold">Data Inicial</label>
+                    <input asp-for="DataInicio" type="date" class="form-control input-custom" />
+                    <span asp-validation-for="DataInicio" class="text-danger"></span>
+                </div>
+                <div class="col-6 form-group">
+                    <label asp-for="DataFim" class="form-label fw-bold">Data Final</label>
+                    <input asp-for="DataFim" type="date" class="form-control input-custom" />
+                    <span asp-validation-for="DataFim" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="HorarioRecebimento" class="form-label fw-bold"></label>
+                <input asp-for="HorarioRecebimento" class="form-control input-custom" placeholder="Ex: 08:00 - 18:00" />
+                <span asp-validation-for="HorarioRecebimento" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="DescricaoAcao" class="form-label fw-bold"></label>
+                <textarea asp-for="DescricaoAcao" class="form-control input-custom" rows="3" placeholder="Descreva os detalhes da sua campanha..."></textarea>
+                <span asp-validation-for="DescricaoAcao" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex justify-content-center">
+                <input type="submit" value="Salvar Edição" class="btn btn-criar" />
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src="~/js/validacoes.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form     = document.querySelector('form[asp-action="Edit"], form[action*="Edit"]');
+            const telInput = document.getElementById('TelefoneContato');
+            const horInput = document.getElementById('HorarioRecebimento');
+            const endInput = document.getElementById('EnderecoRecebimento');
+
+            if (telInput) mascaraTelefone(telInput);
+            if (horInput) mascaraHorarioRange(horInput);
+
+            // Endereço já existe no banco — começa como válido
+            let enderecoValido = !!(endInput?.value.trim());
+            initEnderecoAutocomplete(endInput, v => {
+                enderecoValido = v;
+                if (v) clearErro(form, 'EnderecoRecebimento');
+            });
+
+            form.addEventListener('submit', function (e) {
+                let valid = true;
+
+                if (!telInput?.value.trim() || !validarTelefone(telInput.value)) {
+                    setErro(form, 'TelefoneContato', 'Informe um telefone válido');
+                    valid = false;
+                }
+
+                if (!enderecoValido) {
+                    setErro(form, 'EnderecoRecebimento', 'Selecione um endereço válido na lista');
+                    valid = false;
+                }
+
+                if (horInput?.value && !validarHorarioRange(horInput.value)) {
+                    setErro(form, 'HorarioRecebimento', 'Informe um horário válido (ex: 08:00 - 18:00)');
+                    valid = false;
+                }
+
+                if (!valid) e.preventDefault();
+            });
+        });
+    </script>
+
+    <script>
+        const container = document.getElementById("itensContainer");
+        const btnAdicionar = document.getElementById("btnAdicionar");
+
+        document.querySelectorAll('#itensContainer .item-tag').forEach(item => {
+            item.addEventListener("click", () => {
+                const hiddenInput = item.querySelector('input');
+                const texto = hiddenInput ? hiddenInput.value : item.innerText.trim();
+                if (confirm(`Excluir "${texto}"?`)) {
+                    item.remove();
+                }
+            });
+        });
+
+        if (btnAdicionar && container) {
+            btnAdicionar.addEventListener("click", () => {
+
+                if (document.querySelector(".input-item")) return;
+
+                const input = document.createElement("input");
+                input.type = "text";
+                input.placeholder = "Digite o item...";
+                input.className = "input-item";
+
+                container.insertBefore(input, btnAdicionar);
+
+                input.focus();
+
+                input.addEventListener("keypress", function (e) {
+
+                    if (e.key === "Enter") {
+
+                        e.preventDefault();
+
+                        const texto = input.value.trim();
+
+                        if (texto === "") return;
+
+                        const item = document.createElement("span");
+                        
+                        item.innerHTML = texto;
+                        item.className = "item-tag";
+
+                        const hidden = document.createElement("input");
+                        hidden.type = "hidden";
+                        hidden.name = "TipoDoacao";
+                        hidden.value = texto;
+                        item.appendChild(hidden);
+
+                        item.addEventListener("click", () => {
+                            if (confirm(`Excluir "${texto}"?`)) {
+                                item.remove();
+                            }
+                        });
+
+                        container.insertBefore(item, btnAdicionar);
+
+                        input.remove();
+                    }
+                });
+            });
+        }
+    </script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/campanhas-form.css" asp-append-version="true" />
+}

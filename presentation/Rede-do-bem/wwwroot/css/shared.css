@@ -1,0 +1,34 @@
+/* Variáveis de cor complementares a site.css */
+:root {
+    --rd-blue-dark:    #3F4D94;
+    --rd-blue-pale:    #C4D0F5;
+    --rd-green-action: #DCE8A2;
+    --rd-card-bg:      #f5f5f5;
+    --rd-card-border:  #eaeaea;
+}
+
+/* Card de campanha — compartilhado entre campanhas, quero-doar e outras listagens */
+.campanha-card {
+    background-color: var(--rd-card-bg);
+    border-radius: 12px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--rd-card-border);
+}
+
+/* Card de doação — herda a estrutura visual do campanha-card */
+.doacao-card {
+    display: block;
+    background-color: var(--rd-card-bg);
+    border: 1px solid var(--rd-card-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: 0.2s;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.doacao-card:hover {
+    transform: scale(1.01);
+    color: inherit;
+}

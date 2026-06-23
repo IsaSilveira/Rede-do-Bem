@@ -1,0 +1,97 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.container-criacao {
+    max-width: 450px;
+    margin: auto;
+}
+
+@media (min-width: 768px) {
+    .container-criacao {
+        max-width: 1320px;
+    }
+}
+
+.card-custom {
+    background: #fcfff5;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 40px,
+        rgba(223, 232, 167, 0.25) 40px,
+        rgba(223, 232, 167, 0.25) 42px
+    );
+    padding: 30px 25px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.05);
+}
+
+.badge-title {
+    background-color: #e5f0b6;
+    color: #333;
+    font-weight: bold;
+    padding: 8px 25px;
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 1.1rem;
+}
+
+.input-custom {
+    border-radius: 10px;
+    background-color: #f2f2f2;
+    border: none;
+    padding: 10px 15px;
+    box-shadow: inset 0px 1px 3px rgba(0,0,0,0.05);
+}
+
+.input-custom:focus {
+    background-color: #ebebeb;
+    box-shadow: inset 0px 1px 3px rgba(0,0,0,0.1);
+    outline: none;
+}
+
+.btn-add-item {
+    font-size: 0.8rem;
+    padding: 3px 15px;
+    border-color: #333;
+    color: #333;
+    margin-left: 5px;
+}
+
+.btn-criar {
+    background-color: #92b4f2;
+    color: #000;
+    font-weight: bold;
+    border-radius: 20px;
+    padding: 10px 40px;
+    border: none;
+    font-size: 1.1rem;
+    width: 100%;
+}
+
+.btn-criar:hover {
+    background-color: #79a1eb;
+}
+
+.item-tag,
+#btnAdicionar {
+    border-radius: 10px;
+    background-color: #f2f2f2;
+    border: none;
+    padding: 10px 15px;
+    box-shadow: inset 0px 1px 3px rgba(0,0,0,0.05);
+}
+
+.input-item {
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid #555;
+}
+
+#itensContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}

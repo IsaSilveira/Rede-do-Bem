@@ -1,0 +1,65 @@
+﻿
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/dashboard.css" asp-append-version="true" />
+}
+
+        <div class="topbar">
+             <div class="logo"> REDE DO BEM </div>
+        </div>
+
+
+<div class="dashboard-container">
+
+    <div class="card-dashboard verde">
+
+        @if (ViewBag.TipoUsuario == "Instituicao")
+        {
+            <h4>Perfil Salvo</h4>
+        }
+        else
+        {
+            <h4>Doações Feitas</h4>
+        }
+
+        <div class="circle">
+            @if (ViewBag.TipoUsuario == "Instituicao")
+            {
+                @(ViewBag.PerfilSalvo ?? 0)
+            }
+            else
+            {
+                @(ViewBag.TotalDoacoesFeitas ?? 0)
+            }
+        </div>
+        </div>
+
+    </div>
+
+    <div class="card-dashboard azul">
+
+        <h4>Campanhas Criadas</h4>
+
+        <div class="circle">
+            @(ViewBag.TotalCampanhas ?? 0)
+        </div>
+
+    </div>
+
+    <div class="card-dashboard azul-claro">
+
+        <h4>Doações Recebidas</h4>
+
+        <div class="circle">
+            @(ViewBag.TotalDoacoesRecebidas ?? 0)
+        </div>
+
+    </div>
+
+</div>
+

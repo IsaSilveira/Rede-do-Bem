@@ -1,0 +1,190 @@
+﻿/* Estilos do layout movidos para wwwroot/css/site.css (CSS global) */
+/* O scoped CSS do _Layout não funciona para elementos sem o atributo de escopo gerado */
+
+/* Brand */
+.rdb-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #FFFFF7 !important;
+  letter-spacing: 0.4px;
+  text-decoration: none;
+  padding: 0.7rem 0;
+  transition: opacity 0.2s;
+}
+
+.rdb-brand:hover {
+  opacity: 0.88;
+}
+
+.rdb-brand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #EAF2AE;
+  color: #3B568C;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(234, 242, 174, 0.4);
+}
+
+/* Nav links */
+.rdb-nav-link {
+  color: rgba(255, 255, 247, 0.82) !important;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 0.9rem !important;
+  border-radius: 8px;
+  transition: background 0.18s, color 0.18s, transform 0.15s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.rdb-nav-link:hover,
+.rdb-nav-link:focus {
+  color: #3B568C !important;
+  background: #EAF2AE;
+  transform: translateY(-1px);
+}
+
+.rdb-nav-link.active {
+  color: #3B568C !important;
+  background: #EAF2AE;
+  font-weight: 700;
+}
+
+/* Notification link */
+.rdb-notif-link {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* Badge */
+.rdb-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #EAF2AE;
+  color: #3B568C;
+  font-size: 0.68rem;
+  font-weight: 800;
+  margin-left: 4px;
+  box-shadow: 0 0 8px rgba(234, 242, 174, 0.7);
+  animation: rdb-pulse 2s infinite;
+}
+
+@keyframes rdb-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(234, 242, 174, 0.7); }
+  50%       { box-shadow: 0 0 16px rgba(234, 242, 174, 1); }
+}
+
+/* Toggler */
+.rdb-toggler {
+  border: 1.5px solid rgba(234, 242, 174, 0.5);
+  border-radius: 8px;
+  padding: 0.3rem 0.6rem;
+  color: #EAF2AE;
+  font-size: 1.4rem;
+  background: transparent;
+  line-height: 1;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.rdb-toggler:hover {
+  background: rgba(234, 242, 174, 0.15);
+  border-color: #EAF2AE;
+}
+
+/* Divisor visual antes do Meu Perfil */
+.rdb-nav-divider {
+  width: 1px;
+  height: 22px;
+  background: rgba(255,255,247,0.2);
+  margin: 0 4px;
+  align-self: center;
+}
+
+/* Mobile menu — overlay flutuante (não empurra o conteúdo) */
+@media (max-width: 991.98px) {
+  header {
+    position: relative;
+    z-index: 1030;
+  }
+
+  .rdb-navbar .navbar-collapse {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1040;
+    background: #2d4470;
+    border-radius: 0 0 16px 16px;
+    padding: 0.75rem 1rem 1.1rem;
+    box-shadow: 0 14px 36px rgba(59, 86, 140, 0.5);
+    border-top: 2px solid #EAF2AE;
+  }
+
+  .rdb-nav-link {
+    border-radius: 8px;
+    padding: 0.7rem 1rem !important;
+    font-size: 0.95rem;
+  }
+
+  .rdb-nav-divider {
+    display: none;
+  }
+}
+
+/* ===== GLOBAL ===== */
+a {
+  color: #3B568C;
+}
+
+.btn-primary {
+  color: #3B568C;
+  background-color: #EAF2AE;
+  border-color: #EAF2AE;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background-color: #d6e88a;
+  border-color: #d6e88a;
+  color: #3B568C;
+}
+
+.border-top {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+}

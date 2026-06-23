@@ -1,0 +1,30 @@
+.doacoes-header {
+    color: var(--rd-blue);
+    font-weight: 800;
+    font-family: 'Otomanopee One', sans-serif;
+}
+
+.doacoes-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.doacao-status {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 2px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.doacao-status-validada {
+    background: var(--rd-green-action);
+    color: #355314;
+}
+
+.doacao-status-pendente {
+    background: var(--rd-blue-pale);
+    color: var(--rd-blue-dark);
+}

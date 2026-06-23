@@ -1,0 +1,71 @@
+.account-reset-card {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+}
+
+.account-avatar {
+    width: 48px;
+    height: 48px;
+    background-color: var(--rd-yellow);
+    color: var(--rd-blue);
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.account-details {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    overflow: hidden;
+}
+
+.account-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--rd-yellow);
+    margin-bottom: 2px;
+}
+
+.account-name {
+    font-weight: 700;
+    color: var(--rd-white);
+    line-height: 1.2;
+    font-size: 1.1rem;
+    word-break: break-word;
+}
+
+.account-email {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    word-break: break-all;
+}
+
+@media (min-width: 992px) {
+    .account-reset-card {
+        background-color: #f0f4fc;
+        border: 1px solid rgba(59, 86, 140, 0.12);
+        box-shadow: 0 8px 30px rgba(59, 86, 140, 0.06);
+    }
+
+    .account-avatar {
+        background-color: var(--rd-blue);
+        color: var(--rd-yellow);
+    }
+
+    .account-badge {
+        color: #6c757d;
+    }
+
+    .account-name {
+        color: var(--rd-blue);
+    }
+
+    .account-email {
+        color: #5c6873;
+    }
+}

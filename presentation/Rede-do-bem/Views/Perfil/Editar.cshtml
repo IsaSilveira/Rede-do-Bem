@@ -1,0 +1,339 @@
+﻿@model Rede_do_bem.Models.Usuario
+@{
+    var campanhasAtivas = ViewBag.CampanhasAtivas as List<Rede_do_bem.Models.Campanha> ?? new List<Rede_do_bem.Models.Campanha>();
+    var campanhasCriadas = ViewBag.CampanhasCriadas as List<Rede_do_bem.Models.Campanha> ?? new List<Rede_do_bem.Models.Campanha>();
+    var contagemDoacoes = ViewBag.ContagemDoacoes as Dictionary<int, int> ?? new Dictionary<int, int>();
+}
+
+
+
+    @if (TempData["Mensagem"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mt-3 mx-3 text-center shadow-sm" style="border-radius: 12px; font-weight: 500;" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["Mensagem"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+    }
+
+    <!-- HEADER -->
+    <div class="top-header">
+        <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Otomanopee+One&display=swap" rel="stylesheet">
+
+        <div class="logo-text">
+            REDE DO BEM
+        </div>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="profile-section">
+        <a asp-controller="Home" asp-action="Index" class="back-button">←</a>
+        <img src="@(string.IsNullOrWhiteSpace(Model.Foto) ? "/assets/default_avatar.png" : Model.Foto)" class="profile-image" onerror="this.onerror=null;this.src='/assets/default_avatar.png';" />
+        <div class="profile-name">
+            @(Model.Tipo == Rede_do_bem.Models.TipoUsuario.Instituicao ? Model.RazaoSocial ?? Model.Nome : Model.Nome)
+        </div>
+
+        @if (Model.Tipo == Rede_do_bem.Models.TipoUsuario.Instituicao)
+        {
+            <div class="text-center mt-2 mb-3">
+                @for(int i=0; i<4; i++) { <i class="bi bi-star-fill text-dark"></i> }
+                <i class="bi bi-star text-dark"></i>
+            </div>
+        }
+    </div>
+
+    @if (Model.Tipo == Rede_do_bem.Models.TipoUsuario.Doador)
+    {
+        <!-- NIVEL (Apenas Doador) -->
+        <div class="level-card">
+            <div class="level-left">
+                <div class="level-title">Nível 4</div>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+            <div class="level-right">
+                Você doou 100x<br />esse mês
+            </div>
+        </div>
+    }
+
+    <!-- FORMULÁRIO -->
+    <form id="form-perfil" asp-action="Editar" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Tipo" />
+
+        <div class="section-title">
+            <span>Meus Dados</span>
+            <button type="button" id="btnEditarMode" class="edit-btn btn-outline-primary" onclick="ativarModoEdicao()"><i class="bi bi-pencil-square me-2"></i>Editar</button>
+            <button type="submit" id="btnSalvar" class="edit-btn btn-success" style="display:none; background-color: #dfe8a9; color: black; border-color: #dfe8a9;"><i class="bi bi-check2-circle me-2"></i>Salvar</button>
+        </div>
+
+        <div class="data-box">
+            <label class="profile-label">Nome</label>
+            <input asp-for="Nome" class="form-input" placeholder="Ex: João da Silva" readonly />
+        </div>
+        <div class="data-box">
+            <label class="profile-label">E-mail</label>
+            <input asp-for="Email" class="form-input" placeholder="seu@email.com" readonly style="opacity: 0.7;" />
+        </div>
+
+        <div class="data-box">
+            <label class="profile-label">Telefone de Contato</label>
+            <input asp-for="Telefone" class="form-input" placeholder="(00) 00000-0000" readonly />
+        </div>
+        <div class="data-box">
+            <label class="profile-label">Endereço Completo</label>
+            <input asp-for="EnderecoCompleto" class="form-input" placeholder="Digite e selecione o endereço" readonly autocomplete="off" />
+        <input type="hidden" id="enderecoValidoPerfil" value="@(Model.EnderecoCompleto != null ? "1" : "0")" />
+        </div>
+
+        @if (Model.Tipo == Rede_do_bem.Models.TipoUsuario.Doador)
+        {
+            <div class="data-box">
+                <label class="profile-label">Data de Nascimento</label>
+                <input asp-for="DataNascimento" class="form-input" type="date" readonly />
+            </div>
+        }
+
+        @if (Model.Tipo == Rede_do_bem.Models.TipoUsuario.Instituicao)
+        {
+            <div class="data-box">
+                <label class="profile-label">Site da Instituição</label>
+                <input asp-for="Site" class="form-input" placeholder="Ex: www.aumigos.com.br" readonly />
+            </div>
+
+
+
+            <div class="data-box">
+                <p class="mb-2 text-muted small fw-bold ms-2">Selecione os itens que aceita:</p>
+                <div class="row text-start text-dark ms-1">
+                    @{
+                        var options = new[] { "Alimentos", "Roupas", "Calçados", "Brinquedos", "Móveis", "Eletrodomésticos", "Medicamentos", "Ração", "Brinquedos Caninos", "Remédios" };
+                    }
+                    @foreach (var opt in options)
+                    {
+                        var optId = opt.Replace(" ", "").Replace("ç", "c").Replace("õ", "o").Replace("é", "e").Replace("ó", "o");
+                        <div class="col-6 mb-1">
+                            <div class="form-check">
+                                <input class="form-check-input border-dark" type="checkbox" name="ItensAceitos" value="@opt" id="edit_item_@optId" @(Model.ItensAceitos != null && Model.ItensAceitos.Contains(opt) ? "checked" : "") disabled>
+                                <label class="form-check-label small" for="edit_item_@optId">@opt</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="data-box mt-3">
+                <label class="profile-label">Descrição da Instituição</label>
+                <textarea asp-for="Descricao" class="form-input" rows="4" placeholder="Conte um pouco sobre a história e os objetivos da instituição..." style="border-radius: 20px;" readonly></textarea>
+            </div>
+        }
+
+        <div class="data-box mt-4 mb-4" id="fotoUploadBox" style="display: none;">
+            <label for="fotoArquivo" class="upload-area d-flex flex-column align-items-center justify-content-center" style="cursor: pointer; border: 2px dashed #3B568C; border-radius: 20px; padding: 25px 15px; background-color: rgba(59, 86, 140, 0.03); transition: all 0.3s ease;">
+                <i class="bi bi-cloud-arrow-up-fill" style="font-size: 2.5rem; color: #3B568C;"></i>
+                <span class="fw-bold mt-2 text-dark" style="font-size: 1.05rem;">Atualizar Foto de Perfil</span>
+                <span id="fileName" class="text-muted small mt-1 text-center">Toque para selecionar uma imagem nova</span>
+            </label>
+            <input type="file" name="fotoArquivo" id="fotoArquivo" class="d-none" accept="image/*" onchange="
+                const fn = document.getElementById('fileName');
+                if(this.files.length > 0) {
+                    fn.textContent = 'Selecionado: ' + this.files[0].name;
+                    fn.classList.remove('text-muted');
+                    fn.classList.add('text-success', 'fw-bold');
+                } else {
+                    fn.textContent = 'Toque para selecionar uma imagem nova';
+                    fn.classList.add('text-muted');
+                    fn.classList.remove('text-success', 'fw-bold');
+                }
+            " />
+        </div>
+    </form>
+
+    <script src="~/js/validacoes.js"></script>
+    <script>
+        function ativarModoEdicao() {
+            document.getElementById('btnEditarMode').style.display = 'none';
+            document.getElementById('btnSalvar').style.display = 'inline-block';
+
+            document.querySelectorAll('.form-input:not([name="Email"])').forEach(function(input) {
+                input.removeAttribute('readonly');
+                input.removeAttribute('disabled');
+            });
+
+            document.querySelectorAll('.form-check-input').forEach(function(chk) {
+                chk.removeAttribute('disabled');
+            });
+
+            const fotoBox = document.getElementById('fotoUploadBox');
+            if (fotoBox) fotoBox.style.display = 'block';
+
+            document.body.classList.add('editing-mode');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const form     = document.getElementById('form-perfil') || document.querySelector('form[asp-action="Editar"], form[action*="Editar"]');
+            const telInput = document.getElementById('Telefone');
+            const endInput = document.getElementById('EnderecoCompleto');
+
+            if (telInput) mascaraTelefone(telInput);
+
+            let enderecoValidoPerfil = !!(endInput?.value.trim());
+            if (endInput) {
+                initEnderecoAutocomplete(endInput, v => { enderecoValidoPerfil = v; });
+            }
+
+            form?.addEventListener('submit', function (e) {
+                if (!document.body.classList.contains('editing-mode')) return;
+                let valid = true;
+
+                // Telefone: só valida formato se o campo tiver valor
+                if (telInput?.value.trim() && !validarTelefone(telInput.value)) {
+                    let erroTel = form.querySelector('.erro-tel-perfil');
+                    if (!erroTel) {
+                        erroTel = document.createElement('span');
+                        erroTel.className = 'erro-tel-perfil text-danger small d-block mt-1';
+                        telInput.insertAdjacentElement('afterend', erroTel);
+                    }
+                    erroTel.textContent = 'Informe um telefone válido (ex: (11) 99999-9999)';
+                    valid = false;
+                } else {
+                    const erroTel = form.querySelector('.erro-tel-perfil');
+                    if (erroTel) erroTel.textContent = '';
+                }
+
+                // Endereço: só bloqueia se o usuário digitou mas não selecionou da lista
+                if (endInput?.value.trim() && !enderecoValidoPerfil) {
+                    let erroEnd = form.querySelector('.erro-end-perfil');
+                    if (!erroEnd) {
+                        erroEnd = document.createElement('span');
+                        erroEnd.className = 'erro-end-perfil text-danger small d-block mt-1';
+                        endInput.insertAdjacentElement('afterend', erroEnd);
+                    }
+                    erroEnd.textContent = 'Selecione um endereço válido na lista';
+                    valid = false;
+                } else {
+                    const erroEnd = form.querySelector('.erro-end-perfil');
+                    if (erroEnd) erroEnd.textContent = '';
+                }
+
+                if (!valid) e.preventDefault();
+            });
+        });
+
+        // Menu de opções (Editar/Excluir) dos cards de campanha
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('.campaign-menu-btn');
+
+            document.querySelectorAll('.campaign-menu.open').forEach(function (menu) {
+                if (!btn || menu !== btn.closest('.campaign-menu')) {
+                    menu.classList.remove('open');
+                    var card = menu.closest('.campaign-card');
+                    if (card) card.classList.remove('menu-open');
+                }
+            });
+
+            if (btn) {
+                e.preventDefault();
+                e.stopPropagation();
+                var menu = btn.closest('.campaign-menu');
+                var card = btn.closest('.campaign-card');
+                var isOpen = menu.classList.toggle('open');
+                card.classList.toggle('menu-open', isOpen);
+            }
+        });
+    </script>
+
+    @section Styles {
+    <link rel="stylesheet" href="~/css/pages/perfil-doador.css" asp-append-version="true" />
+}
+
+    @if (Model.Tipo == Rede_do_bem.Models.TipoUsuario.Doador)
+    {
+        <!-- CAMPANHAS ATIVAS (Apenas Doador) -->
+        <div class="section-title mt-4">Campanhas Ativas</div>
+        @if (!campanhasAtivas.Any())
+        {
+            <div class="campaign-card text-center text-muted">
+                Você não possui campanhas ativas no momento.
+            </div>
+        }
+        else
+        {
+            @foreach (var campanha in campanhasAtivas)
+            {
+                <div class="campaign-card text-dark">
+                    <a asp-controller="Campanhas" asp-action="Details" asp-route-id="@campanha.IdCampanha" class="campaign-card-link" aria-label="Ver detalhes da campanha"></a>
+
+                    <div class="campaign-menu">
+                        <button type="button" class="campaign-menu-btn" aria-label="Mais opções">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <div class="campaign-menu-dropdown">
+                            <a asp-controller="Campanhas" asp-action="Edit" asp-route-id="@campanha.IdCampanha" class="campaign-menu-item">
+                                <i class="bi bi-pencil-square"></i> Editar
+                            </a>
+                            <form asp-controller="Campanhas" asp-action="Delete" asp-route-id="@campanha.IdCampanha" method="post" onsubmit="return confirm('Tem certeza que deseja excluir esta campanha?');">
+                                <button type="submit" class="campaign-menu-item campaign-menu-item-danger">
+                                    <i class="bi bi-trash"></i> Excluir
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="campaign-name">@campanha.NomeDaCampanha</div>
+                    <div class="campaign-info">@campanha.EnderecoRecebimento</div>
+                    <div class="campaign-tipo">Tipo de doação: @campanha.TipoDoacao</div>
+                    <div class="campaign-footer">
+                        <div class="people-count">@contagemDoacoes.GetValueOrDefault(campanha.IdCampanha) <span class="people-count-label">pessoas doaram</span></div>
+                        <span class="seta-link">→</span>
+                    </div>
+                </div>
+            }
+        }
+
+        <!-- CAMPANHAS CRIADAS (Histórico, Apenas Doador) -->
+        <div class="section-title mt-4">Campanhas Criadas</div>
+        @if (!campanhasCriadas.Any())
+        {
+            <div class="campaign-card text-center text-muted">
+                Você ainda não possui campanhas no histórico.
+            </div>
+        }
+        else
+        {
+            @foreach (var campanha in campanhasCriadas)
+            {
+                <div class="campaign-card text-dark">
+                    <a asp-controller="Campanhas" asp-action="Details" asp-route-id="@campanha.IdCampanha" class="campaign-card-link" aria-label="Ver detalhes da campanha"></a>
+
+                    <div class="campaign-menu">
+                        <button type="button" class="campaign-menu-btn" aria-label="Mais opções">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <div class="campaign-menu-dropdown">
+                            <a asp-controller="Campanhas" asp-action="Edit" asp-route-id="@campanha.IdCampanha" class="campaign-menu-item">
+                                <i class="bi bi-pencil-square"></i> Editar
+                            </a>
+                            <form asp-controller="Campanhas" asp-action="Delete" asp-route-id="@campanha.IdCampanha" method="post" onsubmit="return confirm('Tem certeza que deseja excluir esta campanha?');">
+                                <button type="submit" class="campaign-menu-item campaign-menu-item-danger">
+                                    <i class="bi bi-trash"></i> Excluir
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="campaign-name">@campanha.NomeDaCampanha</div>
+                    <div class="campaign-info">@campanha.EnderecoRecebimento</div>
+                    <div class="campaign-tipo">Tipo de doação: @campanha.TipoDoacao</div>
+                    <div class="campaign-footer">
+                        <div class="people-count">@contagemDoacoes.GetValueOrDefault(campanha.IdCampanha) <span class="people-count-label">pessoas doaram</span></div>
+                        <span class="seta-link">→</span>
+                    </div>
+                </div>
+            }
+        }
+    }
+
+

@@ -1,0 +1,74 @@
+﻿@model IEnumerable<Rede_do_bem.Models.Campanha>
+
+@{
+    ViewData["Title"] = "Campanhas";
+}
+
+<div class="container mt-4">
+
+    <div class="mb-4">
+        <h2>@ViewBag.NomeInstituicao</h2>
+        <p class="text-muted">
+            Campanhas disponíveis para doação
+        </p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Esta instituição ainda não possui campanhas cadastradas.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+
+            @foreach (var campanha in Model)
+            {
+                <div class="col-md-4 mb-4">
+
+                    <div class="card shadow-sm h-100">
+
+                        <div class="card-body">
+
+                            <h5 class="card-title">
+                                @campanha.NomeDaCampanha
+                            </h5>
+
+                            <p class="card-text">
+                                @campanha.DescricaoAcao
+                            </p>
+
+                            <p>
+                                <strong>Tipo:</strong>
+                                @campanha.TipoDoacao
+                            </p>
+
+                            <p>
+                                <strong>Período:</strong><br />
+                                @campanha.DataInicio?.ToString("dd/MM/yyyy")
+                                até
+                                @campanha.DataFim?.ToString("dd/MM/yyyy")
+                            </p>
+
+                        </div>
+
+                        <div class="card-footer">
+
+                            <a asp-action="Details"
+                                   asp-route-id="@campanha.IdCampanha"
+                                   class="btn btn-primary btn-sm">
+                                Ver Detalhes
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>

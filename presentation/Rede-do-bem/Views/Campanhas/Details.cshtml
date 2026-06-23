@@ -1,0 +1,361 @@
+﻿@model Rede_do_bem.Models.Campanha
+
+@{
+    ViewData["Title"] = "Detalhes da Campanha";
+}
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Sucesso"]
+    </div>
+}
+
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Erro"]
+    </div>
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.cdnfonts.com/css/otomanopee-one" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+
+<div class="container py-4 detalhes-campanha">
+
+
+
+    <div class="topo-acoes">
+        <a href="javascript:history.back()" class="seta-voltar" aria-label="Voltar">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+
+        <button type="button" class="btn-rdb btn-rdb-outline" onclick="copiarLink('@($"{Context.Request.Scheme}://{Context.Request.Host}/Campanhas/Details/{Model.IdCampanha}")')">
+            <i class="bi bi-link-45deg"></i> Copiar Link
+        </button>
+    </div>
+
+    <div class="topo-campanha">
+
+        <div class="info-campanha">
+            <h4><strong>@Model.NomeDaCampanha</strong></h4>
+            <h6 class="nunito">@Model.EnderecoRecebimento</h6>
+        </div>
+
+        <div class="circulo-doacaoteste">
+            <strong><span class="numero">@ViewBag.TotalValidadas</span></strong>
+            <span class="texto">Pessoas doaram</span>
+        </div>
+
+    </div>
+
+    <div class="descricao-campanha">
+        <p class="nunito1">@Model.DescricaoAcao</p>
+    </div>
+
+    <div class="mb-3">
+        <h4 class="section-label">Tipo de Doação</h4>
+        <span class="tag-doacao">@Model.TipoDoacao</span>
+    </div>
+
+    <div class="mb-3">
+        <h4 class="section-label">Contato</h4>
+        <p class="nunito mb-1">Site: </p>
+        <p class="nunito mb-0">Telefone: @Model.TelefoneContato</p>
+    </div>
+
+    <div class="acoes-campanha">
+
+        @if (ViewBag.IsOwner == true)
+        {
+            <div class="acoes-grupo">
+                <div class="acoes-grupo-linha">
+                    <a asp-action="Edit" asp-route-id="@Model.IdCampanha" class="btn-rdb btn-rdb-outline">
+                        <i class="bi bi-pencil-square"></i> Editar
+                    </a>
+
+                    <form asp-action="Delete" asp-route-id="@Model.IdCampanha" method="post" class="m-0" onsubmit="return confirm('Tem certeza que deseja excluir esta campanha?');">
+                        <button type="submit" class="btn-rdb btn-rdb-danger">
+                            <i class="bi bi-trash"></i> Excluir
+                        </button>
+                    </form>
+                </div>
+
+                <button type="button" class="btn-rdb btn-rdb-primary btn-rdb-large" data-bs-toggle="modal" data-bs-target="#modalValidarDoacoes">
+                    Validar Doação
+                </button>
+            </div>
+
+        }
+
+        else
+        {
+            <div class="acoes-grupo">
+                @if (ViewBag.MinhaDoacao != null)
+                {
+                    <button type="button" class="btn-rdb btn-rdb-primary btn-rdb-large btn-rdb-disabled" disabled>Quero Doar</button>
+                }
+                else
+                {
+                    <form asp-action="SolicitarDoacao" method="post" class="m-0">
+                        <input type="hidden" name="id" value="@Model.IdCampanha" />
+                        <button type="submit" class="btn-rdb btn-rdb-primary btn-rdb-large">Quero Doar</button>
+                    </form>
+                }
+
+                <div class="acoes-grupo-linha">
+                    <button type="button" class="btn-rdb btn-rdb-danger" data-bs-toggle="modal" data-bs-target="#modalDenuncia">
+                        Denunciar ponto
+                    </button>
+
+                    <form asp-action="ToggleFavorita" method="post" class="m-0">
+                        <input type="hidden" name="id" value="@Model.IdCampanha" />
+
+                        @if (Model.CampanhaFavoritada)
+                        {
+                            <button type="submit" class="btn-rdb btn-rdb-warning">★ Remover dos Favoritos</button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn-rdb btn-rdb-outline">☆ Adicionar aos Favoritos</button>
+                        }
+                    </form>
+                </div>
+            </div>
+        }
+
+    </div>
+
+    @if (ViewBag.IsOwner != true)
+    {
+        <div class="modal fade"
+             id="modalDenuncia"
+             tabindex="-1"
+             aria-hidden="true">
+
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                        <form asp-controller="Campanhas"
+                              asp-action="Denunciar"
+                              method="post">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                Denunciar ponto de coleta
+                            </h5>
+
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal">
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+
+                            <input type="hidden"
+                                   name="campanhaId"
+                                   value="@Model.IdCampanha" />
+
+                            <label class="form-label">
+                                Motivo da denúncia
+                            </label>
+
+
+                            <textarea name="motivo"
+                                      class="form-control"
+                                      rows="5"
+                                      required>
+                        </textarea>
+
+                        </div>
+
+                        <div class="modal-footer">
+
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+                                Enviar denúncia
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (ViewBag.IsOwner == true)
+    {
+        var pendentes = ViewBag.DoacoesPendentes as List<Rede_do_bem.Models.Doacao>;
+        var denuncias = ViewBag.Denuncias as List<Rede_do_bem.Models.Denuncia>;
+
+        <div class="modal fade" id="modalValidarDoacoes" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Validar Doações</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        @if (pendentes == null || !pendentes.Any())
+                        {
+                            <p class="text-muted text-center mb-0">Nenhuma doação aguardando validação no momento.</p>
+                        }
+                        else
+                        {
+                            <div class="doacao-pendente-cabecalho">
+                                <span>Nome</span>
+                                <span>Código</span>
+                                <span></span>
+                            </div>
+                            @foreach (var doacao in pendentes)
+                            {
+                                <div class="doacao-pendente-item">
+                                    <span>@doacao.DoadorNome</span>
+                                    <span>@doacao.Codigo</span>
+                                    <form asp-action="ValidarDoacao" method="post">
+                                        <input type="hidden" name="doacaoId" value="@doacao.Id" />
+                                        <input type="hidden" name="campanhaId" value="@Model.IdCampanha" />
+                                        <button type="submit" class="btn-validar-check" title="Validar">✓</button>
+                                    </form>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        @if (denuncias != null && denuncias.Any())
+        {
+            <div class="card mt-4">
+                <div class="card-header bg-danger text-white">
+                    Denúncias Recebidas
+                </div>
+
+                <div class="card-body">
+
+                    @foreach (var denuncia in denuncias)
+                    {
+                        <div class="alert alert-warning mb-3">
+
+                            <strong>Data:</strong>
+                            @denuncia.DataDenuncia.ToString("dd/MM/yyyy HH:mm")
+
+                            <br />
+
+                            <strong>Motivo:</strong>
+                            @denuncia.Motivo
+
+                        </div>
+                    }
+
+                </div>
+            </div>  
+        }
+    }
+    else
+    {
+        <div class="modal fade" id="modalParabens" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content text-center">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title w-100">Parabéns pela sua iniciativa!</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="nunito">Quando sua doação for feita, valide-a com o organizador no botão abaixo.</p>
+                        <button type="button" id="btnIrParaAguardando" class="btn-doar">Validar Doação</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalAguardando" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content text-center">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title w-100">Aguardando Validação</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="codigo-doacao">@ViewBag.NovoCodigo</div>
+                        <p class="nunito">Mostre o código acima</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalDoacaoValidada" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content text-center">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title w-100">Sua doação foi validada!</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <a asp-controller="Doacoes" asp-action="MinhasDoacoes" class="btn-doar">Ver minhas doações</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (ViewBag.NovoCodigo != null || ViewBag.DoacaoValidadaAgora != null)
+        {
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    @if (ViewBag.NovoCodigo != null)
+                    {
+                        <text>
+                        var modalParabens = new bootstrap.Modal(document.getElementById('modalParabens'));
+                        modalParabens.show();
+
+                        document.getElementById('btnIrParaAguardando').addEventListener('click', function () {
+                            modalParabens.hide();
+                            var modalAguardando = new bootstrap.Modal(document.getElementById('modalAguardando'));
+                            modalAguardando.show();
+                        });
+                        </text>
+                    }
+
+                    @if (ViewBag.DoacaoValidadaAgora != null)
+                    {
+                        <text>
+                        var modalDoacaoValidada = new bootstrap.Modal(document.getElementById('modalDoacaoValidada'));
+                        modalDoacaoValidada.show();
+                        </text>
+                    }
+                });
+            </script>
+        }
+    }
+
+</div>
+
+<script>
+    function copiarLink(link) {
+        navigator.clipboard.writeText(link)
+            .then(() => alert("Link copiado!"))
+            .catch(err => console.error("Erro ao copiar: ", err));
+    }
+</script>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/campanhas-details.css" asp-append-version="true" />
+}
+
+

@@ -1,0 +1,230 @@
+@page
+@model Rede_do_bem.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Registro";
+    Layout = "_AuthLayout";
+}
+
+@section LeftSide {
+    <div class="logo-container">
+        <img src="~/assets/logo.png" alt="Rede do Bem" class="logo-img" />
+    </div>
+    <div class="welcome-text mb-3">Crie sua conta</div>
+    <p style="opacity: 0.8; font-size: 1.2rem; max-width: 500px;">Junte-se à nossa rede de solidariedade e ajude a transformar vidas através da doação consciente.</p>
+}
+
+<div class="d-lg-none pt-4 mt-3" style="position: relative; z-index: 2;">
+    <div class="logo-container">
+        <img src="~/assets/logo.png" alt="Rede do Bem" class="logo-img" />
+    </div>
+    <div class="welcome-text mb-3">Crie sua conta</div>
+</div>
+
+<div class="auth-form-container" style="max-width: 450px;">
+    <form method="post" id="registerForm">
+        <div asp-validation-summary="ModelOnly"></div>
+
+        <!-- ETAPA 1 -->
+        <div id="step1">
+
+        <input asp-for="Input.Nome" class="auth-input" placeholder="Seu nome" />
+        <span asp-validation-for="Input.Nome" class="text-danger small"></span>
+
+        <input asp-for="Input.Email" class="auth-input" placeholder="Seu e-mail" />
+        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+
+        <div class="password-container">
+            <input asp-for="Input.Password" type="password" class="auth-input pe-5" placeholder="Senha" id="regPassword" />
+            <button type="button" class="password-toggle" onclick="togglePassword('regPassword', this)">
+                <i class="bi bi-eye mt-1"></i>
+            </button>
+        </div>
+        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+
+        <div class="password-container">
+            <input asp-for="Input.ConfirmPassword" type="password" class="auth-input pe-5" placeholder="Confirmar" id="confirmPassword" />
+            <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword', this)">
+                <i class="bi bi-eye mt-1"></i>
+            </button>
+        </div>
+        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+
+            <div class="d-flex flex-column align-items-center mt-3">
+                <button type="button" class="btn btn-rd-primary" onclick="nextStep()">Próximo</button>
+                <div class="mt-2 text-center">
+                    <a asp-page="./Login" class="auth-link fw-bold">Já tenho conta.</a>
+                </div>
+            </div>
+        </div>
+
+        <input type="hidden" asp-for="Input.Tipo" id="tipoUsuarioHidden" />
+
+        <!-- ETAPA 2 -->
+        <div id="step2" style="display:none;">
+
+        <!-- Campos para Doador -->
+        <div id="camposDoador" style="@(Model.Input.Tipo == Rede_do_bem.Models.TipoUsuario.Doador ? "display:block;" : "display:none;")">
+            <input asp-for="Input.CPF" class="auth-input" placeholder="Seu CPF" />
+            <span asp-validation-for="Input.CPF" class="text-danger small"></span>
+        </div>
+
+        <!-- Campos para Instituição -->
+        <div id="camposInstituicao" style="@(Model.Input.Tipo == Rede_do_bem.Models.TipoUsuario.Instituicao ? "display:block;" : "display:none;")">
+            <input asp-for="Input.CNPJ" class="auth-input" placeholder="CNPJ da Instituição" />
+            <span asp-validation-for="Input.CNPJ" class="text-danger small"></span>
+            
+            <input asp-for="Input.RazaoSocial" class="auth-input" placeholder="Razão Social" />
+            <span asp-validation-for="Input.RazaoSocial" class="text-danger small"></span>
+            
+            <input asp-for="Input.EnderecoCompleto" class="auth-input" placeholder="Digite e selecione o endereço" autocomplete="off" />
+            <input type="hidden" id="enderecoValidoReg" value="@(Model.Input.EnderecoCompleto != null && Model.Input.EnderecoCompleto.Length > 0 ? "1" : "0")" />
+            <span asp-validation-for="Input.EnderecoCompleto" class="text-danger small"></span>
+
+            <div class="auth-input" style="border-radius: 20px; height: auto;">
+                <p class="mb-2 text-muted small fw-bold">Selecione os itens que aceita:</p>
+                <div class="row text-start text-dark">
+                    @{
+                        var options = new[] { "Alimentos", "Roupas", "Calçados", "Brinquedos", "Móveis", "Eletrodomésticos", "Medicamentos", "Ração", "Brinquedos Caninos", "Remédios" };
+                    }
+                    @foreach (var opt in options)
+                    {
+                        var optId = opt.Replace(" ", "").Replace("ç", "c").Replace("õ", "o").Replace("é", "e").Replace("ó", "o");
+                        <div class="col-6 mb-1">
+                            <div class="form-check">
+                                <input class="form-check-input border-dark" type="checkbox" name="Input.ItensAceitos" value="@opt" id="reg_item_@optId" @(Model.Input.ItensAceitos.Contains(opt) ? "checked" : "")>
+                                <label class="form-check-label small" for="reg_item_@optId">@opt</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <span asp-validation-for="Input.ItensAceitos" class="text-danger small"></span>
+
+            <input asp-for="Input.Telefone" class="auth-input" placeholder="Telefone de contato" />
+            <span asp-validation-for="Input.Telefone" class="text-danger small"></span>
+
+            <input asp-for="Input.Site" class="auth-input" placeholder="Link de site" />
+            <span asp-validation-for="Input.Site" class="text-danger small"></span>
+
+            <textarea asp-for="Input.Descricao" class="auth-input" style="border-radius: 20px;" rows="2" placeholder="Descrição da Instituição"></textarea>
+            <span asp-validation-for="Input.Descricao" class="text-danger small"></span>
+        </div>
+
+            <div class="d-flex flex-column align-items-center mt-3">
+                <button type="submit" class="btn btn-rd-primary mb-2">Registrar</button>
+                <button type="button" class="btn btn-rd-outline" onclick="prevStep()">Voltar</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/validacoes.js"></script>
+    <script>
+        function nextStep() {
+            let isValid = true;
+            const fieldsToValidate = ['Input_Nome', 'Input_Email', 'regPassword', 'confirmPassword'];
+            const validator = $("#registerForm").validate();
+            fieldsToValidate.forEach(field => {
+                const el = document.getElementById(field);
+                if (el && !validator.element(el)) isValid = false;
+            });
+            if (isValid) {
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+            }
+        }
+
+        function prevStep() {
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step1').style.display = 'block';
+        }
+
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let enderecoValidoReg = document.getElementById('enderecoValidoReg')?.value === '1';
+            const endInput = document.getElementById('Input_EnderecoCompleto');
+            if (endInput) {
+                initEnderecoAutocomplete(endInput, v => { enderecoValidoReg = v; });
+            }
+            const step2Errors = document.querySelectorAll('#step2 .field-validation-error, #step2 .text-danger:not(:empty)');
+            let hasStep2Error = false;
+            step2Errors.forEach(span => { if (span.textContent?.trim()) hasStep2Error = true; });
+            if (hasStep2Error) {
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+            }
+
+            document.querySelectorAll('#step1 input').forEach(input => {
+                input.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); nextStep(); } });
+            });
+
+            const cpfInput = document.querySelector('input[name="Input.CPF"]');
+            const cnpjInput = document.querySelector('input[name="Input.CNPJ"]');
+            const telInput  = document.querySelector('input[name="Input.Telefone"]');
+            const form      = document.getElementById('registerForm');
+
+            if (cpfInput) {
+                mascaraCPF(cpfInput);
+                cpfInput.addEventListener('blur', function () {
+                    const span = this.nextElementSibling;
+                    if (!this.value.trim()) { span.textContent = 'CPF obrigatório'; return; }
+                    span.textContent = validarCPF(this.value) ? '' : 'CPF inválido';
+                });
+            }
+
+            if (cnpjInput) {
+                mascaraCNPJ(cnpjInput);
+                cnpjInput.addEventListener('blur', function () {
+                    const span = this.nextElementSibling;
+                    if (!this.value.trim()) { span.textContent = 'CNPJ obrigatório'; return; }
+                    span.textContent = validarCNPJ(this.value) ? '' : 'CNPJ inválido';
+                });
+            }
+
+            if (telInput) mascaraTelefone(telInput);
+
+            form.addEventListener('submit', function (e) {
+                const isTipoDoador = document.getElementById('camposDoador')?.style.display !== 'none';
+                const isTipoInst  = document.getElementById('camposInstituicao')?.style.display !== 'none';
+                let valid = true;
+
+                if (isTipoDoador && cpfInput) {
+                    if (!cpfInput.value.trim() || !validarCPF(cpfInput.value)) {
+                        cpfInput.nextElementSibling.textContent = 'CPF inválido';
+                        valid = false;
+                    }
+                }
+
+                if (isTipoInst) {
+                    if (cnpjInput && (!cnpjInput.value.trim() || !validarCNPJ(cnpjInput.value))) {
+                        cnpjInput.nextElementSibling.textContent = 'CNPJ inválido';
+                        valid = false;
+                    }
+                    if (telInput && !validarTelefone(telInput.value)) {
+                        telInput.nextElementSibling.textContent = 'Informe um telefone válido';
+                        valid = false;
+                    }
+                    if (!enderecoValidoReg) {
+                        setErro(form, 'Input.EnderecoCompleto', 'Selecione um endereço válido na lista');
+                        valid = false;
+                    }
+                }
+
+                if (!valid) e.preventDefault();
+            });
+        });
+    </script>
+}

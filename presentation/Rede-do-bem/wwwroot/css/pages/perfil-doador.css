@@ -1,0 +1,54 @@
+.profile-label {
+    display: block;
+    font-size: 0.85rem;
+    color: #888;
+    font-weight: 700;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.top-header {
+    padding: 12px 0 6px;
+}
+
+.logo-text {
+    font-size: 30px;
+    letter-spacing: 3px;
+}
+
+.profile-image {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.level-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.data-box {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-bottom: none;
+    transition: all 0.3s ease;
+}
+
+body:not(.editing-mode) .form-input {
+    color: #222;
+    font-weight: 500;
+}
+
+body.editing-mode .data-box {
+    background: #fbfbfb;
+    box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+body.editing-mode .form-input {
+    color: #4a4a4a;
+}
+
+.edit-btn {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}

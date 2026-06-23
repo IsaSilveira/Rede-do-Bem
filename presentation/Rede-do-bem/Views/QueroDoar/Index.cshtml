@@ -1,0 +1,370 @@
+﻿@model IEnumerable<Rede_do_bem.Models.Campanha>
+@{
+    ViewData["Title"] = "Quero Doar";
+    var filtroCidade = ViewBag.FiltroCidade as string;
+    var filtroTipo = ViewBag.FiltroTipo as string;
+    var visualizacao = ViewBag.Visualizacao as string ?? "lista";
+    bool isMapa = visualizacao == "mapa";
+}
+
+<!-- Topo: seta voltar + botoes Lista/Mapa + Filtro tipo -->
+<div class="d-flex align-items-center gap-2 mb-4 mt-3 px-2">
+    <a asp-page="/Index" class="qd-back">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+
+    @{
+        var routeLista = new Dictionary<string, string>
+        {
+            { "visualizacao", "lista" },
+            { "filtroTipo", filtroTipo ?? "" }
+        };
+        var routeMapa = new Dictionary<string, string>
+        {
+            { "visualizacao", "mapa" },
+            { "filtroTipo", filtroTipo ?? "" }
+        };
+    }
+
+    <a asp-controller="QueroDoar" asp-action="Index" asp-all-route-data="@routeLista"
+       class="qd-pill @(!isMapa ? "qd-pill-active" : "")">
+        <i class="bi bi-list-ul me-1"></i>Lista
+    </a>
+
+    <a asp-controller="QueroDoar" asp-action="Index" asp-all-route-data="@routeMapa"
+       class="qd-pill @(isMapa ? "qd-pill-active" : "")">
+        <i class="bi bi-map me-1"></i>Mapa
+    </a>
+
+    <div class="qd-pill qd-pill-dropdown">
+        Tipo de Doacao
+        @{
+            var tipos = new[] { "Roupas de Frio", "Alimentos", "Dinheiro", "Outros" };
+        }
+        <select class="qd-select-hidden"
+                onchange="window.location.href='/QueroDoar?visualizacao=@visualizacao&filtroTipo=' + this.value">
+            <option value="">Todos</option>
+            @foreach (var tipo in tipos)
+            {
+                <option value="@tipo" selected="@(filtroTipo == tipo)">@tipo</option>
+            }
+        </select>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(filtroTipo))
+{
+    <div class="d-flex align-items-center justify-content-center gap-2 mb-3 w-100">
+        <span class="qd-filtro-tag">@filtroTipo</span>
+        <a asp-controller="QueroDoar" asp-action="Index" asp-route-visualizacao="@visualizacao" class="qd-filtro-limpar"><i class="bi bi-x-circle"></i> Limpar</a>
+    </div>
+}
+
+@if (!isMapa)
+{
+    <!-- VISUALIZACAO EM LISTA -->
+    <h4 class="fw-bold mb-3">Instituições</h4>
+
+    @foreach (var usuario in ViewBag.Instituicoes)
+    {
+        if (usuario.Tipo.ToString() == "Instituicao")
+        {
+            <a asp-controller="Instituicoes"
+               asp-action="Details"
+               asp-route-id="@usuario.Id"
+               class="instituicao-link">
+
+                <div class="instituicao-card">
+
+                    <div class="instituicao-info">
+                        <h5>@usuario.Nome</h5>
+
+                        <p>
+                            @(string.IsNullOrEmpty(usuario.EnderecoCompleto)
+                                ? "Endereço não informado"
+                                : usuario.EnderecoCompleto)
+                        </p>
+                    </div>
+
+                    <img src="@usuario.Foto"
+                         class="instituicao-foto"
+                         alt="Foto da Instituição" />
+
+                </div>
+
+            </a>
+        }
+    }
+
+    <hr class="my-4" />
+
+    <h4 class="fw-bold mb-3">Campanhas</h4>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">Nenhuma campanha encontrada.</div>
+    }
+
+    @foreach (var item in Model)
+    {
+        <div class="campanha-card mb-3">
+            <div class="p-3 position-relative">
+                <h5 class="fw-bold mb-1">@item.NomeDaCampanha</h5>
+                <p class="text-muted small mb-2 lh-sm">
+                    @(string.IsNullOrEmpty(item.EnderecoRecebimento) ? "Endereco nao informado" : item.EnderecoRecebimento)
+                </p>
+                <p class="mb-3">
+                    <span class="fw-semibold">Tipo de doacao:</span> <span class="fw-bold">@item.TipoDoacao</span>
+                </p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold fs-5">0 <span class="fs-6 fw-normal">pessoas doaram</span></span>
+                    <a asp-controller="Campanhas" asp-action="Details" asp-route-id="@item.IdCampanha" class="text-dark fs-4 stretched-link">
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+
+    <p class="text-muted small text-center mt-3">@Model.Count() campanha(s) encontrada(s)</p>
+}
+else
+{
+    <!-- VISUALIZACAO EM MAPA -->
+    <div class="position-relative mb-2">
+        <div class="input-group">
+            <input type="text" id="qd-busca-endereco" class="form-control" placeholder="Buscar endereço no mapa..." autocomplete="off">
+            <button class="btn btn-primary" type="button" id="qd-btn-busca-endereco">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+        <ul id="qd-busca-sugestoes" class="list-group qd-sugestoes-list"></ul>
+    </div>
+
+    <div id="map" style="height:70vh; border-radius:12px; border:1px solid #eaeaea;"></div>
+    <p class="text-muted small text-center mt-2">@Model.Count() campanha(s) encontrada(s)</p>
+
+    <div class="d-flex justify-content-center gap-4 mb-2 small text-muted">
+        <span><i class="bi bi-geo-alt-fill text-primary"></i> Campanhas</span>
+        <span><i class="bi bi-building-fill text-success"></i> Instituições</span>
+    </div>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map').setView([-14.2350, -51.9253], 4);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'OpenStreetMap contributors'
+        }).addTo(map);
+
+        const institutionIcon = L.divIcon({
+            html: '<i class="bi bi-building-fill text-success" style="font-size:22px;"></i>',
+            iconSize: [22, 22],
+            className: ''
+        });
+
+        const campanhas = [
+            @foreach (var item in Model)
+            {
+                <text>
+                {
+                    id: @item.IdCampanha,
+                    nome: '@Html.Raw(item.NomeDaCampanha?.Replace("'", "\\'") ?? "")',
+                    tipo: '@Html.Raw(item.TipoDoacao?.Replace("'", "\\'") ?? "")',
+                    endereco: '@Html.Raw(item.EnderecoRecebimento?.Replace("'", "\\'") ?? "")',
+                    categoria: 'campanha'
+                },
+                </text>
+            }
+        ];
+
+        const instituicoes = [
+            @foreach (var usuario in ViewBag.Instituicoes)
+            {
+                if (usuario.Tipo.ToString() == "Instituicao")
+                {
+                    <text>
+                    {
+                        id: @usuario.Id,
+                        nome: '@Html.Raw(usuario.Nome?.Replace("'", "\\'") ?? "")',
+                        endereco: '@Html.Raw(usuario.EnderecoCompleto?.Replace("'", "\\'") ?? "")',
+                        categoria: 'instituicao'
+                    },
+                    </text>
+                }
+            }
+        ];
+
+        function montarPopup(ponto) {
+            if (ponto.categoria === 'instituicao') {
+                return '<strong>' + ponto.nome + '</strong><br>' +
+                    '<small>' + ponto.endereco + '</small><br>' +
+                    '<span class="badge bg-primary">Instituição</span><br>' +
+                    '<a href="/Instituicoes/Details/' + ponto.id + '">Ver detalhes</a>';
+            }
+            return '<strong>' + ponto.nome + '</strong><br>' +
+                '<small>' + ponto.endereco + '</small><br>' +
+                '<span class="badge bg-success">' + ponto.tipo + '</span><br>' +
+                '<a href="/Campanhas/Details/' + ponto.id + '">Ver detalhes</a>';
+        }
+
+        async function geocodeAndMark(ponto, delay) {
+            if (!ponto.endereco) return;
+            await new Promise(r => setTimeout(r, delay));
+            try {
+                const url = 'https://nominatim.openstreetmap.org/search?format=json' +
+                    '&q=' + encodeURIComponent(ponto.endereco + ', Brasil');
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lng = parseFloat(data[0].lon);
+                    const marker = ponto.categoria === 'instituicao'
+                        ? L.marker([lat, lng], { icon: institutionIcon })
+                        : L.marker([lat, lng]);
+                    marker.addTo(map).bindPopup(montarPopup(ponto));
+                }
+            } catch (err) {
+                console.log('Erro ao geocodificar: ' + ponto.nome, err);
+            }
+        }
+
+        function iniciarMarcadores() {
+            [...instituicoes, ...campanhas].forEach((p, i) => {
+                geocodeAndMark(p, i * 1100);
+            });
+        }
+
+        map.whenReady(function() {
+            map.invalidateSize();
+            iniciarMarcadores();
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    L.marker([pos.coords.latitude, pos.coords.longitude], {
+                        icon: L.divIcon({
+                            html: '<i class="bi bi-geo-fill text-primary" style="font-size:24px;"></i>',
+                            iconSize: [24, 24],
+                            className: ''
+                        })
+                    }).addTo(map).bindPopup('Voce esta aqui');
+                }, function(err) {
+                    console.log('Nao foi possivel obter a localizacao: ' + err.message);
+                }, { enableHighAccuracy: true, timeout: 10000 });
+            }
+        });
+
+        let buscaMarker = null;
+
+        function selecionarLocal(lat, lng, nome) {
+            if (buscaMarker) {
+                map.removeLayer(buscaMarker);
+            }
+
+            buscaMarker = L.marker([lat, lng], {
+                icon: L.divIcon({
+                    html: '<i class="bi bi-geo-alt-fill text-danger" style="font-size:28px;"></i>',
+                    iconSize: [28, 28],
+                    className: ''
+                })
+            }).addTo(map).bindPopup(nome).openPopup();
+
+            map.setView([lat, lng], 15);
+        }
+
+        async function buscarEndereco() {
+            const endereco = inputBusca.value.trim();
+            if (!endereco) return;
+
+            esconderSugestoes();
+
+            try {
+                const url = 'https://nominatim.openstreetmap.org/search?format=json' +
+                    '&q=' + encodeURIComponent(endereco + ', Brasil');
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    alert('Endereço não encontrado.');
+                    return;
+                }
+
+                selecionarLocal(parseFloat(data[0].lat), parseFloat(data[0].lon), data[0].display_name);
+            } catch (err) {
+                console.log('Erro ao buscar endereço: ' + err.message);
+                alert('Não foi possível buscar esse endereço.');
+            }
+        }
+
+        const inputBusca = document.getElementById('qd-busca-endereco');
+        const listaSugestoes = document.getElementById('qd-busca-sugestoes');
+        let timeoutSugestoes = null;
+
+        function esconderSugestoes() {
+            listaSugestoes.innerHTML = '';
+            listaSugestoes.style.display = 'none';
+        }
+
+        inputBusca.addEventListener('input', function() {
+            const texto = inputBusca.value.trim();
+
+            clearTimeout(timeoutSugestoes);
+
+            if (texto.length < 3) {
+                esconderSugestoes();
+                return;
+            }
+
+            timeoutSugestoes = setTimeout(async () => {
+                try {
+                    const url = 'https://nominatim.openstreetmap.org/search?format=json' +
+                        '&limit=5&q=' + encodeURIComponent(texto + ', Brasil');
+                    const res = await fetch(url);
+                    const data = await res.json();
+
+                    listaSugestoes.innerHTML = '';
+
+                    if (data.length === 0) {
+                        esconderSugestoes();
+                        return;
+                    }
+
+                    data.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item';
+                        li.textContent = item.display_name;
+                        li.addEventListener('click', () => {
+                            inputBusca.value = item.display_name;
+                            esconderSugestoes();
+                            selecionarLocal(parseFloat(item.lat), parseFloat(item.lon), item.display_name);
+                        });
+                        listaSugestoes.appendChild(li);
+                    });
+
+                    listaSugestoes.style.display = 'block';
+                } catch (err) {
+                    console.log('Erro ao buscar sugestões: ' + err.message);
+                }
+            }, 400);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!inputBusca.contains(e.target) && !listaSugestoes.contains(e.target)) {
+                esconderSugestoes();
+            }
+        });
+
+        document.getElementById('qd-btn-busca-endereco').addEventListener('click', buscarEndereco);
+        inputBusca.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarEndereco();
+            }
+        });
+    </script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/quero-doar.css" asp-append-version="true" />
+}

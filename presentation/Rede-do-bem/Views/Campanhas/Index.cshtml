@@ -1,0 +1,71 @@
+@model IEnumerable<Rede_do_bem.Models.Campanha>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="campanhas-title mt-4">
+    <h1>Campanhas</h1>
+</div>
+
+
+
+
+<div class="container mt-5">
+    <div class="card-custom">
+
+        <p class="botao-criar-campanha">
+            <a asp-action="Create" class="btn btn-primary mb-3">Nova Campanha</a>
+        </p>
+
+        @foreach (var item in Model)
+        {
+            <div class="campanha-card mb-3">
+                <div class="p-3 position-relative">
+                    <h5 class="fw-bold mb-1">@item.NomeDaCampanha</h5>
+                    <p class="text-muted small mb-2 lh-sm">
+                        @(string.IsNullOrEmpty(item.EnderecoRecebimento) ? "Endereço não informado" : item.EnderecoRecebimento)
+                    </p>
+                    <p class="mb-3">
+                        <span class="fw-semibold">Tipo de doação:</span> <span class="fw-bold">@item.TipoDoacao</span>
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold fs-5">0 <span class="fs-6 fw-normal">pessoas doaram</span></span>
+                        
+                        <a asp-action="Details" asp-route-id="@item.IdCampanha" class="text-dark fs-4 stretched-link">
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="acoes-admin border-top pt-2 mt-1 px-3 pb-3 d-flex flex-wrap gap-2">
+                    <a asp-action="Edit" asp-route-id="@item.IdCampanha" class="btn btn-sm btn-outline-secondary">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@item.IdCampanha" class="btn btn-sm btn-outline-danger">Excluir</a>
+                    <button class="btn btn-sm btn-outline-primary" onclick="copiarLink('@($"{Context.Request.Scheme}://{Context.Request.Host}/Campanhas/Details/{item.IdCampanha}")')">
+                        <i class="bi bi-link-45deg"></i> Copiar Link
+                    </button>
+                    @if(item.CampanhaFavoritada)
+                    {
+                        <span class="badge bg-warning text-dark align-self-center"><i class="bi bi-star-fill"></i> Favorita</span>
+                    }
+                </div>
+            </div>
+        }
+
+
+    </div>
+</div>
+<script>
+    function copiarLink(link) {
+        navigator.clipboard.writeText(link)
+            .then(() => {
+                alert("Link copiado!");
+            })
+            .catch(err => {
+                console.error("Erro ao copiar: ", err);
+            });
+    }
+</script>
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/campanhas-index.css" asp-append-version="true" />
+}

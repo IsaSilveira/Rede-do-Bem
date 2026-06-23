@@ -1,0 +1,44 @@
+﻿@model IEnumerable<Rede_do_bem.Models.Doacao>
+@{
+    ViewData["Title"] = "Minhas Doações";
+}
+
+<div class="container mt-4 mb-5">
+    <h2 class="doacoes-header mb-4">Minhas Doações</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center p-5" style="background: white; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <h4 style="color: var(--rd-blue); font-weight: bold;">Você ainda não fez nenhuma doação.</h4>
+            <p class="text-muted">Quando você solicitar uma doação para uma campanha, ela aparecerá aqui.</p>
+        </div>
+    }
+    else
+    {
+        <div class="doacoes-lista">
+            @foreach (var doacao in Model)
+            {
+                <a asp-controller="Campanhas" asp-action="Details" asp-route-id="@doacao.CampanhaId" class="doacao-card">
+                    <div class="doacao-info">
+                        <h6 class="fw-bold mb-1">@doacao.Campanha?.NomeDaCampanha</h6>
+                        <p class="text-muted small mb-1">
+                            Solicitada em @doacao.DataSolicitacao.ToString("dd/MM/yyyy HH:mm")
+                        </p>
+                        @if (doacao.Status == Rede_do_bem.Models.StatusDoacao.Validada)
+                        {
+                            <span class="doacao-status doacao-status-validada">Validada</span>
+                        }
+                        else
+                        {
+                            <span class="doacao-status doacao-status-pendente">Aguardando validação · Código @doacao.Codigo</span>
+                        }
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/doacoes.css" asp-append-version="true" />
+}

@@ -1,0 +1,253 @@
+﻿@page
+@model Rede_do_bem.Pages.IndexModel
+@{
+    ViewData["Title"] = "Página Inicial";
+    if (!User.Identity?.IsAuthenticated ?? true)
+    {
+        Layout = "_AuthLayout";
+    }
+}
+
+@if (!User.Identity?.IsAuthenticated ?? true)
+{
+    @section LeftSide {
+        <div class="logo-container">
+            <img src="~/assets/logo.png" alt="Rede do Bem" class="logo-img" />
+        </div>
+        
+        <div class="tagline-images d-flex flex-column max-width-334px">
+            <img src="~/assets/start1.png" alt="Unindo mãos que doam" class="tagline-img me-auto" />
+            <img src="~/assets/start2.png" alt="...a quem sabe entregar" class="tagline-img ms-auto" />
+        </div>
+    }
+}
+
+@if (User.Identity?.IsAuthenticated ?? false)
+{
+
+
+<div class="home-cards-wrapper">
+    <a asp-controller="QueroDoar" asp-action="Index" class="action-card">
+        <div class="campaign-title">
+            Quero <br /> Doar!
+        </div>
+
+        <span class="arrow">→</span>
+    </a>
+
+
+<a asp-controller="Campanhas" asp-action="Create" class="action-card2">
+    <div class="campaign-title">
+        Criar <br /> Campanha!
+    </div>
+
+        <span class="arrow">→</span>
+    </a>
+</div>
+
+<div class="home-campanhas-section mt-4">
+    <h5 class="fw-bold mb-3 px-1">Novas campanhas perto de você</h5>
+
+    @if (!Model.Campanhas.Any())
+    {
+        <p class="text-muted small px-1">Nenhuma campanha cadastrada no momento.</p>
+    }
+    else
+    {
+        <div id="home-campanhas-status" class="home-campanhas-status small text-muted px-1 mb-2">
+            <i class="bi bi-geo-alt"></i> Buscando campanhas mais próximas de você...
+        </div>
+
+        <div id="home-campanhas-lista" class="home-campanhas-lista">
+            @foreach (var campanha in Model.Campanhas)
+            {
+                double? lat = null;
+                double? lng = null;
+                <a asp-controller="Campanhas" asp-action="Details" asp-route-id="@campanha.IdCampanha"
+                   class="campaign-card d-block text-decoration-none text-dark"
+                   data-lat="@(lat?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")"
+                   data-lng="@(lng?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")"
+                   data-endereco="@campanha.EnderecoRecebimento">
+                    <div class="campaign-name">@campanha.NomeDaCampanha</div>
+                    <div class="campaign-info">
+                        @(string.IsNullOrEmpty(campanha.EnderecoRecebimento) ? "Endereço não informado" : campanha.EnderecoRecebimento)
+                    </div>
+                    <div class="campaign-tipo">Tipo de doação: @campanha.TipoDoacao</div>
+                    <div class="campaign-footer">
+                        <span class="home-campanha-distancia"></span>
+                        <span class="seta-link">→</span>
+                    </div>
+                </a>
+            }
+        </div>
+
+        <script>
+            (function () {
+                function calcularDistanciaKm(lat1, lon1, lat2, lon2) {
+                    const R = 6371;
+                    const toRad = deg => deg * Math.PI / 180;
+                    const dLat = toRad(lat2 - lat1);
+                    const dLon = toRad(lon2 - lon1);
+                    const a = Math.sin(dLat / 2) ** 2 +
+                        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                        Math.sin(dLon / 2) ** 2;
+                    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                }
+
+                async function geocodeEndereco(endereco, delay) {
+                    await new Promise(r => setTimeout(r, delay));
+                    try {
+                        const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1' +
+                            '&q=' + encodeURIComponent(endereco + ', Brasil');
+                        const res = await fetch(url);
+                        const data = await res.json();
+                        if (data.length > 0) {
+                            return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+                        }
+                    } catch (err) {
+                        console.log('Erro ao geocodificar endereço da campanha: ' + err.message);
+                    }
+                    return null;
+                }
+
+                function aplicarDistancia(card, lat, lng, cardLat, cardLng) {
+                    const distEl = card.querySelector('.home-campanha-distancia');
+
+                    if (!isNaN(cardLat) && !isNaN(cardLng)) {
+                        const dist = calcularDistanciaKm(lat, lng, cardLat, cardLng);
+                        card.dataset.distancia = dist;
+                        distEl.textContent = dist < 1
+                            ? Math.round(dist * 1000) + ' m'
+                            : dist.toFixed(1) + ' km';
+                    } else {
+                        card.dataset.distancia = '';
+                        distEl.textContent = '';
+                    }
+                }
+
+                function reordenarCards(lista, cards) {
+                    cards.sort((a, b) => {
+                        const da = a.dataset.distancia;
+                        const db = b.dataset.distancia;
+                        if (da === '' && db === '') return 0;
+                        if (da === '') return 1;
+                        if (db === '') return -1;
+                        return parseFloat(da) - parseFloat(db);
+                    });
+
+                    cards.forEach(card => lista.appendChild(card));
+                }
+
+                async function ordenarPorDistancia(lat, lng) {
+                    const lista = document.getElementById('home-campanhas-lista');
+                    if (!lista) return;
+
+                    const cards = Array.from(lista.children);
+                    let atrasoGeocode = 0;
+
+                    await Promise.all(cards.map(async (card) => {
+                        let cardLat = parseFloat(card.dataset.lat);
+                        let cardLng = parseFloat(card.dataset.lng);
+
+                        if ((isNaN(cardLat) || isNaN(cardLng)) && card.dataset.endereco) {
+                            const local = await geocodeEndereco(card.dataset.endereco, atrasoGeocode);
+                            atrasoGeocode += 1100;
+                            if (local) {
+                                cardLat = local.lat;
+                                cardLng = local.lng;
+                            }
+                        }
+
+                        aplicarDistancia(card, lat, lng, cardLat, cardLng);
+                    }));
+
+                    reordenarCards(lista, cards);
+                }
+
+                const statusEl = document.getElementById('home-campanhas-status');
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(async function (pos) {
+                        await ordenarPorDistancia(pos.coords.latitude, pos.coords.longitude);
+                        if (statusEl) statusEl.style.display = 'none';
+                    }, function (err) {
+                        console.log('Não foi possível obter a localização: ' + err.message);
+                        if (statusEl) {
+                            statusEl.innerHTML = '<i class="bi bi-geo-alt"></i> Ative a localização para ver as campanhas mais próximas de você.';
+                        }
+                    }, { enableHighAccuracy: true, timeout: 10000 });
+                } else if (statusEl) {
+                    statusEl.innerHTML = '<i class="bi bi-geo-alt"></i> Seu navegador não suporta localização.';
+                }
+            })();
+        </script>
+    }
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/home.css" asp-append-version="true" />
+}
+
+
+
+
+     @*
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="card-header bg-rd-blue text-white py-4 text-center border-0" style="background-color: var(--rd-blue) !important;">
+                        <h2 class="mb-0">Olá, @User.Identity.Name!</h2>
+                        <span class="badge bg-rd-yellow text-rd-blue mt-2" style="background-color: var(--rd-yellow) !important; color: var(--rd-blue) !important; font-size: 1rem; padding: 0.5rem 1.5rem; border-radius: 50px;">
+                            Perfil: @(User.FindFirst("UserType")?.Value == "Doador" ? "Doador (Transformador)" : "Instituição (Ponto do Bem)")
+                        </span>
+                    </div>
+                    <div class="card-body p-5 text-center">
+                        <p class="lead mb-4">É muito bom ter você aqui com a gente na Rede do Bem.</p>
+                        
+                        @if (User.IsInRole("Doador"))
+                        {
+                            <div class="p-4 mb-4 rounded-4" style="background-color: #f8f9fa; border: 1px dashed var(--rd-light-blue);">
+                                <h4 class="text-rd-blue" style="color: var(--rd-blue);">Pronto para ajudar?</h4>
+                                <p>Existem diversas causas precisando da sua mobilização hoje.</p>
+                                <a href="#" class="btn btn-rd-primary px-4">Ver Causas Próximas</a>
+                            </div>
+                        }
+                        else if (User.IsInRole("Instituicao"))
+                        {
+                            <div class="p-4 mb-4 rounded-4" style="background-color: #f8f9fa; border: 1px dashed var(--rd-light-blue);">
+                                <h4 class="text-rd-blue" style="color: var(--rd-blue);">Gestão de Apoio</h4>
+                                <p>Gerencie suas campanhas e visualize as doações recebidas.</p>
+                                <a href="#" class="btn btn-rd-primary px-4">Painel de Controle</a>
+                            </div>
+                        }
+
+                        <form method="post" asp-page-handler="Logout" class="mt-4">
+                            <button type="submit" class="btn btn-outline-danger px-5" style="border-radius: 50px;">Sair da Conta</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> *@
+}
+else
+{
+    <div class="d-lg-none">
+        <div class="logo-container">
+            <img src="~/assets/logo.png" alt="Rede do Bem" class="logo-img" />
+        </div>
+        
+        <div class="tagline-images" style="margin-bottom: 60px!important; margin-top: 60px!important;">
+            <img src="~/assets/start1.png" alt="Unindo mãos que doam" class="tagline-img me-auto" />
+            <img src="~/assets/start2.png" alt="...a quem sabe entregar" class="tagline-img ms-auto" style="padding-left: 60px" />
+        </div>
+    </div>
+
+    <div class="auth-form-container w-100">
+        <div class="d-flex flex-column align-items-center w-100">
+            <a asp-page="/Account/Login" class="btn btn-rd-primary">Login</a>
+            <a asp-page="/Account/RegisterChoice" class="btn btn-rd-outline">Cadastro</a>
+        </div>
+    </div>
+}

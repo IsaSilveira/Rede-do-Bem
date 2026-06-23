@@ -1,0 +1,237 @@
+﻿@model Rede_do_bem.Models.Usuario
+@{
+    var campanhasAtivas = ViewBag.CampanhasAtivas as List<Rede_do_bem.Models.Campanha> ?? new List<Rede_do_bem.Models.Campanha>();
+}
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<div class="container mt-4">
+
+    <a href="javascript:history.back()" class="btn-voltar">
+        ← Voltar
+    </a>
+
+    <div class="topo-instituicao">
+
+        <div>
+            <h2>@Model.Nome</h2>
+
+            <p class="endereco">
+                @Model.EnderecoCompleto
+            </p>
+        </div>
+
+        <img src="@Model.Foto"
+             class="foto-instituicao"
+             alt="Foto da instituição" />
+
+    </div>
+
+    <div class="descricao">
+        @Model.Descricao
+    </div>
+<br />
+
+    <h2>Tipo de Doação</h2>
+
+    <div class="tags">
+        @if (Model.ItensAceitos != null)
+        {
+            @foreach (var item in Model.ItensAceitos)
+            {
+                <span class="tag">@item</span>
+            }
+        }
+    </div>
+    <br />
+
+
+
+    <h2>Contato</h2>
+
+    <p><strong>Site:</strong> @Model.Site</p>
+
+    <p><strong>Telefone:</strong> @Model.Telefone</p>
+
+
+    <br />
+    <div class="linha-avaliacao">
+        <h3>Avaliação</h3>
+
+        @if (ViewBag.EstaLogado == true)
+        {
+            @if (ViewBag.JaSalvou == true)
+            {
+                <form asp-controller="Instituicoes"
+                      asp-action="Remover"
+                      method="post"
+                      style="display:inline;">
+
+                    <input type="hidden"
+                           name="instituicaoId"
+                           value="@Model.Id" />
+
+                    <button type="submit" class="btn-verde btn-remover">
+                        Remover dos Salvos
+                    </button>
+
+                </form>
+            }
+            else
+            {
+                <form asp-controller="Instituicoes"
+                      asp-action="Salvar"
+                      method="post"
+                      style="display:inline;">
+
+                    <input type="hidden"
+                           name="instituicaoId"
+                           value="@Model.Id" />
+
+                    <button type="submit" class="btn-verde">
+                        Salvar
+                    </button>
+
+                </form>
+            }
+        }
+    </div>
+
+
+    @if (ViewBag.IsOwner != true)
+    {
+        <form asp-controller="Avaliacao"
+              asp-action="Avaliar"
+              method="post">
+
+            <input type="hidden"
+                   name="instituicaoId"
+                   value="@Model.Id" />
+
+            <input type="hidden"
+                   id="nota"
+                   name="nota"
+                   value="0" />
+
+            <div class="avaliacao-container">
+
+                <div class="estrelas-avaliacao">
+                    <i class="bi bi-star estrela" data-valor="1"></i>
+                    <i class="bi bi-star estrela" data-valor="2"></i>
+                    <i class="bi bi-star estrela" data-valor="3"></i>
+                    <i class="bi bi-star estrela" data-valor="4"></i>
+                    <i class="bi bi-star estrela" data-valor="5"></i>
+                </div>
+
+                <button type="submit" class="btn-verde">
+                    @(ViewBag.MinhaAvaliacao > 0 ? "Atualizar Avaliação" : "Avaliar")
+                </button>
+
+            </div>
+
+            <div>
+                <p>
+                    ⭐ @ViewBag.MediaAvaliacao
+                    (@ViewBag.TotalAvaliacoes avaliações)
+                </p>
+                @if (ViewBag.MinhaAvaliacao > 0)
+                {
+                    <p class="small text-muted" style="margin-top: -10px;">Você avaliou com @ViewBag.MinhaAvaliacao estrelas.</p>
+                }
+            </div>
+
+        </form>
+    }
+    else
+    {
+        <div class="avaliacao-container" style="justify-content: flex-start; gap: 15px;">
+            <div>
+                <p class="mb-0 fs-5">
+                    ⭐ @ViewBag.MediaAvaliacao
+                    (@ViewBag.TotalAvaliacoes avaliações)
+                </p>
+            </div>
+        </div>
+    }
+
+    <br />
+
+    <h2>Campanhas Ativas</h2>
+
+    @if (!campanhasAtivas.Any())
+    {
+        <p class="text-muted">Esta instituição não possui campanhas ativas no momento.</p>
+    }
+    else
+    {
+        @foreach (var campanha in campanhasAtivas)
+        {
+            <a asp-controller="Campanhas" asp-action="Details" asp-route-id="@campanha.IdCampanha"
+               class="d-block text-decoration-none text-dark mb-3 p-3"
+               style="background:#f5f5f5; border-radius:12px; border:1px solid #eaeaea; box-shadow:0 2px 8px rgba(0,0,0,.05);">
+                <div class="fw-bold mb-1">@campanha.NomeDaCampanha</div>
+                <div class="text-muted small mb-1">@campanha.EnderecoRecebimento</div>
+                <div class="small">Tipo de doação: <strong>@campanha.TipoDoacao</strong></div>
+            </a>
+        }
+    }
+
+</div>
+
+<script>
+
+    let notaSelecionada = 0;
+
+    const estrelas = document.querySelectorAll('.estrela');
+
+    estrelas.forEach(estrela => {
+
+        estrela.addEventListener('click', function () {
+
+            notaSelecionada = this.dataset.valor;
+
+            document.getElementById("nota").value = notaSelecionada;
+
+            estrelas.forEach(e => {
+
+                if (e.dataset.valor <= notaSelecionada) {
+                    e.classList.remove('bi-star');
+                    e.classList.add('bi-star-fill');
+                    e.classList.add('ativa');
+                }
+                else {
+                    e.classList.remove('bi-star-fill');
+                    e.classList.add('bi-star');
+                    e.classList.remove('ativa');
+                }
+
+            });
+
+        });
+
+    });
+
+    document.querySelector("form[action*='Avaliar']")?.addEventListener("submit", function (e) {
+
+        if (notaSelecionada == 0) {
+            e.preventDefault();
+            alert("Selecione uma nota antes de avaliar.");
+        }
+
+    });
+
+    @if (ViewBag.MinhaAvaliacao > 0)
+    {
+        <text>
+        document.addEventListener("DOMContentLoaded", function() {
+            const initStar = document.querySelector(`.estrela[data-valor='@ViewBag.MinhaAvaliacao']`);
+            if(initStar) initStar.click();
+        });
+        </text>
+    }
+
+</script>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/instituicoes.css" asp-append-version="true" />
+}

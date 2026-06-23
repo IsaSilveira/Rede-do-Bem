@@ -1,0 +1,304 @@
+﻿@model Rede_do_bem.Models.Usuario
+@{
+    var campanhasAtivas  = ViewBag.CampanhasAtivas  as List<Rede_do_bem.Models.Campanha> ?? new List<Rede_do_bem.Models.Campanha>();
+    var campanhasCriadas = ViewBag.CampanhasCriadas as List<Rede_do_bem.Models.Campanha> ?? new List<Rede_do_bem.Models.Campanha>();
+    double mediaAvaliacao = ViewBag.MediaAvaliacao  is double d ? d : 0.0;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Otomanopee+One&display=swap" rel="stylesheet">
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/perfil-instituicao.css" asp-append-version="true" />
+}
+
+<!-- PERFIL -->
+<div class="profile-section mt-2">
+    <a asp-controller="Home" asp-action="Index" class="text-dark text-decoration-none align-self-start ms-3">
+        <i class="fas fa-arrow-left" style="font-size: 24px;"></i>
+    </a>
+
+    <img src="@(string.IsNullOrEmpty(Model.Foto) ? "/img/user.png" : Model.Foto)"
+         class="profile-image shadow-sm mt-2"
+         style="border: 3px solid white;" />
+
+    <div class="profile-name">@Model.Nome</div>
+
+    <div class="d-flex justify-content-center align-items-center gap-1 mt-1" style="font-size: 18px;">
+        @for (int i = 1; i <= 5; i++)
+        {
+            if (mediaAvaliacao >= i)
+            {
+                <i class="fas fa-star text-dark"></i>
+            }
+            else if (mediaAvaliacao >= i - 0.5)
+            {
+                <i class="fas fa-star-half-alt text-dark"></i>
+            }
+            else
+            {
+                <i class="far fa-star text-dark"></i>
+            }
+        }
+    </div>
+</div>
+
+<!-- FORMULÁRIO -->
+<form id="form-perfil" asp-action="Editar" method="post" enctype="multipart/form-data" class="mt-3">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Foto" />
+
+    <!-- Botões -->
+    <div class="btn-container">
+        <!-- Estado inicial: só aparece Editar -->
+        <button type="button" id="btn-editar" class="btn-editar">
+            Editar <i class="fas fa-pencil-alt" style="font-size: 12px;"></i>
+        </button>
+        <!-- Ficam escondidos até clicar em Editar -->
+        <button type="button" id="btn-cancelar" class="btn-cancelar" style="display:none;">
+            Cancelar
+        </button>
+        <button type="submit" id="btn-salvar" class="btn-salvar" style="display:none;">
+            Salvar <i class="fas fa-check" style="font-size: 12px;"></i>
+        </button>
+    </div>
+
+    <!-- Upload de foto (aparece só no modo edição) -->
+    <div class="data-box shadow-sm mb-3" id="fotoUploadBox" style="display:none;">
+        <label for="fotoArquivo" style="cursor:pointer; display:flex; flex-direction:column; align-items:center; border:2px dashed #3B568C; border-radius:12px; padding:25px 15px; background:rgba(59,86,140,0.03);">
+            <i class="bi bi-cloud-arrow-up-fill" style="font-size:2.5rem; color:#3B568C;"></i>
+            <span class="fw-bold mt-2 text-dark" style="font-size:1.05rem;">Atualizar Foto de Perfil</span>
+            <span id="fotoFileName" class="text-muted small mt-1 text-center">Toque para selecionar uma imagem</span>
+        </label>
+        <input type="file" name="fotoArquivo" id="fotoArquivo" class="d-none" accept="image/*"
+               onchange="var fn=document.getElementById('fotoFileName'); if(this.files.length>0){fn.textContent='Selecionado: '+this.files[0].name; fn.className='text-success fw-bold small mt-1 text-center';}else{fn.textContent='Toque para selecionar uma imagem'; fn.className='text-muted small mt-1 text-center';}" />
+    </div>
+
+    <div class="data-box shadow-sm">
+        <input asp-for="Nome" class="form-input" placeholder="Nome da Instituição" />
+    </div>
+    <div class="data-box shadow-sm">
+        <input asp-for="Email" class="form-input" placeholder="E-mail" />
+    </div>
+    <div class="data-box shadow-sm">
+        <input asp-for="Telefone" class="form-input" placeholder="Telefone" />
+    </div>
+    <div class="data-box shadow-sm">
+        <input asp-for="EnderecoCompleto" class="form-input" placeholder="Digite e selecione o endereço" autocomplete="off" />
+        <input type="hidden" id="enderecoValidoInst" value="@(Model.EnderecoCompleto != null ? "1" : "0")" />
+    </div>
+    <div class="data-box shadow-sm">
+        <input asp-for="Site" class="form-input" placeholder="Site (ex: www.aumigos.com.br)" />
+    </div>
+
+    <!-- TAGS DE NECESSIDADES -->
+    <div class="itens-section">
+        <div id="container-itens" class="d-flex flex-wrap gap-2">
+            @foreach (var item in Model.ItensAceitos ?? new List<string>())
+            {
+                <span class="badge border border-dark text-dark rounded-pill py-2 px-3 d-flex align-items-center gap-2 shadow-sm item-doacao">
+                    @item
+                    <input type="hidden" name="ItensAceitos" value="@item" />
+                    <i class="far fa-times-circle btn-remover-item" style="cursor: pointer; font-size: 14px; display:none;"></i>
+                </span>
+            }
+        </div>
+        <button type="button" id="btn-adicionar-item"
+                class="btn border border-dark rounded-pill py-1 px-3 mt-3 shadow-sm bg-transparent fw-bold"
+                style="font-size: 12px; display:none;">
+            Adicionar item +
+        </button>
+    </div>
+
+    <div class="data-box shadow-sm mb-4">
+        <textarea asp-for="Descricao" class="form-input" rows="7" placeholder="Escreva sobre a instituição..."
+                  style="resize: none; font-size: 14px; text-align: justify; line-height: 1.5;"></textarea>
+    </div>
+</form>
+
+<!-- CAMPANHAS ATIVAS -->
+<div class="section-title">Campanhas Ativas</div>
+@if (!campanhasAtivas.Any())
+{
+    <div class="campaign-card text-center text-muted">Nenhuma campanha ativa no momento.</div>
+}
+else
+{
+    @foreach (var campanha in campanhasAtivas)
+    {
+        <div class="campaign-card text-dark">
+            <a asp-controller="Campanhas" asp-action="Details" asp-route-id="@campanha.IdCampanha" class="campaign-card-link" aria-label="Ver detalhes da campanha"></a>
+            <div class="campaign-menu">
+                <button type="button" class="campaign-menu-btn" aria-label="Mais opções">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <div class="campaign-menu-dropdown">
+                    <a asp-controller="Campanhas" asp-action="Edit" asp-route-id="@campanha.IdCampanha" class="campaign-menu-item">
+                        <i class="bi bi-pencil-square"></i> Editar
+                    </a>
+                    <form asp-controller="Campanhas" asp-action="Delete" asp-route-id="@campanha.IdCampanha" method="post"
+                          onsubmit="return confirm('Tem certeza que deseja excluir esta campanha?');">
+                        <button type="submit" class="campaign-menu-item campaign-menu-item-danger">
+                            <i class="bi bi-trash"></i> Excluir
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="campaign-name">@campanha.NomeDaCampanha</div>
+            <div class="campaign-info">@campanha.EnderecoRecebimento</div>
+            <div class="campaign-tipo">Tipo de doação: @campanha.TipoDoacao</div>
+            <div class="campaign-footer">
+                <span>Ver detalhes</span>
+                <span>→</span>
+            </div>
+        </div>
+    }
+}
+
+<!-- CAMPANHAS ENCERRADAS -->
+<div class="section-title">Campanhas Encerradas</div>
+@if (!campanhasCriadas.Any())
+{
+    <div class="campaign-card text-center text-muted">Nenhuma campanha encerrada.</div>
+}
+else
+{
+    @foreach (var campanha in campanhasCriadas)
+    {
+        <div class="campaign-card text-dark">
+            <a asp-controller="Campanhas" asp-action="Details" asp-route-id="@campanha.IdCampanha" class="campaign-card-link" aria-label="Ver detalhes da campanha"></a>
+            <div class="campaign-name">@campanha.NomeDaCampanha</div>
+            <div class="campaign-info">@campanha.EnderecoRecebimento</div>
+            <div class="campaign-tipo">Tipo de doação: @campanha.TipoDoacao</div>
+            <div class="campaign-footer">
+                <span>Ver detalhes</span>
+                <span>→</span>
+            </div>
+        </div>
+    }
+}
+
+
+
+
+
+@section Scripts {
+    <script src="~/js/validacoes.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form           = document.getElementById('form-perfil');
+            const btnEditar      = document.getElementById('btn-editar');
+            const btnSalvar      = document.getElementById('btn-salvar');
+            const btnCancelar    = document.getElementById('btn-cancelar');
+            const inputs         = form.querySelectorAll('.form-input');
+            const btnAdicionar   = document.getElementById('btn-adicionar-item');
+            const containerItens = document.getElementById('container-itens');
+            const fotoUploadBox  = document.getElementById('fotoUploadBox');
+
+            let valoresOriginais = {};
+
+            function entrarModoEdicao() {
+                inputs.forEach(input => { valoresOriginais[input.name] = input.value; });
+                form.classList.add('editing');
+                btnEditar.style.display   = 'none';
+                btnSalvar.style.display   = 'flex';
+                btnCancelar.style.display = 'flex';
+                document.querySelectorAll('.btn-remover-item').forEach(el => el.style.display = 'inline');
+                btnAdicionar.style.display = 'inline-block';
+                fotoUploadBox.style.display = 'block';
+            }
+
+            function sairModoEdicao(restaurar) {
+                if (restaurar) {
+                    inputs.forEach(input => { input.value = valoresOriginais[input.name] ?? input.value; });
+                }
+                form.classList.remove('editing');
+                btnEditar.style.display   = 'flex';
+                btnSalvar.style.display   = 'none';
+                btnCancelar.style.display = 'none';
+                document.querySelectorAll('.btn-remover-item').forEach(el => el.style.display = 'none');
+                btnAdicionar.style.display  = 'none';
+                fotoUploadBox.style.display = 'none';
+                document.getElementById('fotoArquivo').value = '';
+                document.getElementById('fotoFileName').textContent = 'Toque para selecionar uma imagem';
+                document.getElementById('fotoFileName').className = 'text-muted small mt-1 text-center';
+            }
+
+            btnEditar.addEventListener('click', entrarModoEdicao);
+            btnCancelar.addEventListener('click', () => sairModoEdicao(true));
+
+            containerItens.addEventListener('click', function (e) {
+                if (e.target.classList.contains('btn-remover-item')) {
+                    e.target.closest('.item-doacao').remove();
+                }
+            });
+
+            btnAdicionar.addEventListener('click', function () {
+                const novoItem = prompt("Digite o nome do novo item (ex: Cobertores):");
+                if (novoItem && novoItem.trim() !== "") {
+                    const texto = novoItem.trim();
+                    const span = document.createElement('span');
+                    span.className = "badge border border-dark text-dark rounded-pill py-2 px-3 d-flex align-items-center gap-2 shadow-sm item-doacao";
+                    span.style.cssText = "font-size:12px; font-weight:500; background:#ffffff;";
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden'; hidden.name = 'ItensAceitos'; hidden.value = texto;
+                    span.appendChild(document.createTextNode(texto + ' '));
+                    span.appendChild(hidden);
+                    const icone = document.createElement('i');
+                    icone.className = 'far fa-times-circle btn-remover-item';
+                    icone.style.cssText = 'cursor:pointer; font-size:14px;';
+                    span.appendChild(icone);
+                    containerItens.appendChild(span);
+                }
+            });
+
+            const telInput = form.querySelector('[name="Telefone"]');
+            if (telInput) mascaraTelefone(telInput);
+
+            const endInput = form.querySelector('[name="EnderecoCompleto"]');
+            let enderecoValidoInst = !!(endInput?.value.trim());
+            if (endInput) {
+                initEnderecoAutocomplete(endInput, v => {
+                    enderecoValidoInst = v;
+                    if (v) {
+                        const span = endInput.parentElement.querySelector('.erro-endereco-inst');
+                        if (span) span.textContent = '';
+                    }
+                });
+            }
+
+            form.addEventListener('submit', function (e) {
+                if (!form.classList.contains('editing')) return;
+                let valid = true;
+
+                if (!telInput?.value.trim() || !validarTelefone(telInput.value)) {
+                    let span = telInput?.parentElement.querySelector('.erro-tel-inst');
+                    if (!span) {
+                        span = document.createElement('span');
+                        span.className = 'erro-tel-inst text-danger small';
+                        telInput?.insertAdjacentElement('afterend', span);
+                    }
+                    span.textContent = 'Informe um telefone válido';
+                    valid = false;
+                }
+
+                if (!enderecoValidoInst) {
+                    let span = endInput?.parentElement.querySelector('.erro-endereco-inst');
+                    if (!span) {
+                        span = document.createElement('span');
+                        span.className = 'erro-endereco-inst text-danger small';
+                        endInput?.insertAdjacentElement('afterend', span);
+                    }
+                    span.textContent = 'Selecione um endereço válido na lista';
+                    valid = false;
+                } else {
+                    const span = endInput?.parentElement.querySelector('.erro-endereco-inst');
+                    if (span) span.textContent = '';
+                }
+
+                if (!valid) e.preventDefault();
+            });
+        });
+    </script>
+}
