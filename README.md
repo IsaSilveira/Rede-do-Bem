@@ -1,61 +1,40 @@
 # Rede do Bem
 
-`Análise e Desenvolvimento de Sistemas`
+A Rede do Bem é uma plataforma digital que conecta doadores, instituições e campanhas sociais, criando uma rede colaborativa voltada ao fortalecimento de ações solidárias.
 
-`Projeto: Desenvolvimento de uma Aplicação Interativa`
+Este projeto foi desenvolvido durante a faculdade, no curso de Análise e Desenvolvimento de Sistemas, e continua em evolução com melhorias contínuas.
 
-`2026/1`
+## Sobre o Projeto
 
-A Rede do Bem é uma plataforma digital que conecta doadores, instituições e campanhas sociais, criando uma rede colaborativa voltada ao fortalecimento de ações solidárias. Seu propósito é aproximar pessoas que desejam ajudar; e de organizações que necessitam de apoio, facilitando o acesso a informações, campanhas e oportunidades de contribuição. <p>
-Por meio da plataforma, instituições podem divulgar suas necessidades, campanhas de arrecadação e iniciativas sociais, ampliando sua visibilidade e alcance. Em contrapartida, os doadores encontram um ambiente centralizado e confiável para descobrir causas alinhadas aos seus interesses e realizar contribuições de forma simples e transparente.
-A Rede do Bem utiliza a tecnologia para fortalecer a conexão entre a sociedade e as organizações sociais, promovendo maior engajamento comunitário, ampliando o alcance das campanhas solidárias e contribuindo para a geração de impacto social positivo.
+A plataforma permite que instituições divulguem suas necessidades e campanhas de arrecadação, enquanto doadores encontram um ambiente centralizado e confiável para descobrir causas e realizar contribuições de forma simples e transparente.
 
+## Acesso
 
-## Integrantes
+- URL da aplicação: https://rededobem.azurewebsites.net
+- Status: online
 
-* Tálison Miguel Amancio
-* Emanoel de Araujo santo
-* Gabriel Rezende da Silva Maia
-* Uelton Pereira Motta
-* Isabela Mendonça Silveira
-* Guilherme Fernandes dos Santos Coimbra
+## Tecnologias Utilizadas
 
-## Orientador
+- ASP.NET Core MVC
+- Entity Framework Core
+- SQLite
+- Bootstrap
 
-* Claudio Faria
+## Como Executar Localmente
 
-## Instruções de Instalação, Execução e Acesso
+1. Clone o repositório:
+```bash
+   git clone https://github.com/IsaSilveira/Rede-do-Bem.git
+```
+2. Acesse a pasta do projeto:
+```bash
+   cd presentation/Rede-do-bem
+```
+3. Execute a aplicação:
+```bash
+   dotnet run
+```
 
-**Acesso rápido (produção)**
-* URL da aplicação: https://rededobem.azurewebsites.net
-* Status: online
-* Ambiente: produção
+## Status
 
-**Usuário(s) de teste:**
-*Não há usuários de teste pré-definidos. O avaliador poderá criar o seu próprio perfil (Doador ou Instituição) diretamente na tela de Cadastro do sistema.*
-
-# Documentação
-
-<ol>
-<li><a href="docs/01-Documentação de Contexto.md"> Documentação de Contexto</a></li>
-<li><a href="docs/02-Especificação do Projeto.md"> Especificação do Projeto</a></li>
-<li><a href="docs/03-Metodologia.md"> Metodologia</a></li>
-<li><a href="docs/04-Projeto de Interface.md"> Projeto de Interface</a></li>
-<li><a href="docs/05-Arquitetura da Solução.md"> Arquitetura da Solução</a></li>
-<li><a href="docs/06-Template Padrão da Aplicação.md"> Template Padrão da Aplicação</a></li>
-<li><a href="docs/07-Programação de Funcionalidades.md"> Programação de Funcionalidades</a></li>
-<li><a href="docs/08-Plano de Testes de Software.md"> Plano de Testes de Software</a></li>
-<li><a href="docs/09-Registro de Testes de Software.md"> Registro de Testes de Software</a></li>
-<li><a href="docs/10-Plano de Testes de Usabilidade.md"> Plano de Testes de Usabilidade</a></li>
-<li><a href="docs/11-Registro de Testes de Usabilidade.md"> Registro de Testes de Usabilidade</a></li>
-<li><a href="docs/12-Apresentação do Projeto.md"> Apresentação do Projeto</a></li>
-<li><a href="docs/13-Referências.md"> Referências</a></li>
-</ol>
-
-# Código
-
-<li><a href="src/README.md"> Código Fonte</a></li>
-
-# Apresentação
-
-<li><a href="docs/12-Apresentação do Projeto.md"> Apresentação do Projeto</a></li>
+🚧 Em desenvolvimento — melhorias sendo implementadas continuamente.
