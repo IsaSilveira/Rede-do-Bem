@@ -1,72 +1,57 @@
-# Plano de Testes de Usabilidade: Projeto Rede do Bem
+# Plano de Testes de Usabilidade — Rede do Bem
+> **Data:** Junho 2026
+> **Versão:** 1.0
 
-Os testes de usabilidade permitem avaliar a qualidade da interface com o usuário da aplicação interativa.
+Este documento define o plano de testes de usabilidade do sistema **Rede do Bem**, com foco em avaliar a qualidade da interface e a experiência dos usuários nos perfis **Doador** e **Instituição**.
 
-## Definição do(s) objetivo(s)
+---
 
-O objetivo principal deste teste é avaliar se a plataforma Rede do Bem cumpre sua promessa de reduzir barreiras logísticas e informacionais no processo de doação.
-Eficácia: Verificar se o usuário consegue localizar um ponto de coleta e entender quais itens são aceitos sem auxílio externo.
-Eficiência: Medir o tempo e o número de cliques necessários para cadastrar um novo ponto de doação ou campanha.
-Navegabilidade: Identificar se os filtros por "Tipo de Doação" (alimentos, roupas, etc.) são intuitivos.
-Acessibilidade: Garantir que perfis com pouca familiaridade tecnológica consigam navegar no mapa e encontrar endereços.
+## Objetivos do Teste
 
-## Seleção dos participantes
+| ID | Objetivo |
+|----|----------|
+| OB01 | Verificar se os usuários concluem as tarefas essenciais sem auxílio. |
+| OB02 | Identificar barreiras na navegação e na interação com o sistema. |
+| OB03 | Medir a eficiência (tempo, cliques e erros) durante o uso. |
+| OB04 | Avaliar a satisfação geral do usuário com a interface. |
+| OB05 | Validar a acessibilidade para diferentes perfis de usuários. |
 
-Seleção dos Participantes
-Para representar o público-alvo diversificado, serão selecionados 7 participantes, divididos nos seguintes perfis:
-- Doador Eventual (3 pessoas): Usuários com pouca experiência em apps de impacto social, foco em facilidade de busca.
-- Doador Frequente (2 pessoas): Usuários familiarizados com tecnologia que buscam rapidez. Perfil focado na criação de campanhas temporárias.
-- Representante de Instituição/ONG (2 pessoas): Perfil focado na gestão e cadastro de pontos de coleta e campanhas.
+---
 
-## Definição de cenários de teste
+## Seleção dos Participantes
 
-Abaixo, os cinco cenários essenciais para validar as funcionalidades do sistema:
-- Cenário 1: Busca por Proximidade e Tipo de Item
-Objetivo: Avaliar a facilidade de encontrar um local específico doação e recebimento de donativos.
-Contexto: Você tem uma sacola de roupas usadas em bom estado e quer doá-las hoje em um local próximo à sua casa.
-Tarefa: Acessar a plataforma, filtrar e localizar o ponto de coleta mais próximo do seu endereço atual.
-Critério de Sucesso: O usuário aplica o filtro corretamente e visualiza o endereço e horário de funcionamento do local em menos de 2 minutos.
+Serão selecionados **10 participantes** representativos do público-alvo. Em conformidade com a **LGPD**, todos serão identificados apenas por códigos (`P01`–`P10`).
 
-- Cenário 2: Cadastro de Ponto de Recebimento (Perfil Instituição)
-Objetivo: Testar o fluxo de entrada de novos parceiros na rede.
-Contexto: Você representa uma ONG que começou a aceitar doações de móveis e eletrônicos e precisa que os doadores te encontrem.
-Tarefa: Realizar o cadastro da sua instituição, inserindo endereço, tipos de itens aceitos e horário de atendimento.
-Critério de Sucesso: O ponto de coleta aparece corretamente no mapa após a finalização do cadastro.
+| Código | Perfil | Quantidade | Familiaridade com Tecnologia |
+|--------|--------|------------|------------------------------|
+| P01–P02 | Doador iniciante | 2 | Baixa |
+| P03–P05 | Doador intermediário | 3 | Média |
+| P06 | Doador avançado | 1 | Alta |
+| P07–P08 | Instituição iniciante | 2 | Baixa/Média |
+| P09–P10 | Instituição experiente | 2 | Média/Alta |
+| — | Participante com necessidade de acessibilidade | 1 (entre os 10) | — |
 
-- Cenário 3: Criação de Campanha Temporária (Perfil Frequente)
-Objetivo: Verificar a agilidade na divulgação de ações pontuais.
-Contexto: Houve uma enchente na região e você está organizando uma arrecadação de alimentos apenas para o próximo final de semana.
-Tarefa: Criar uma "Campanha de Arrecadação Temporária", definindo a data de início, término e o objetivo da ação.
-Critério de Sucesso: A campanha é criada com uma sinalização visual de que é um evento temporário.
+---
 
-- Cenário 4: Obtenção de Informações Detalhadas
-Objetivo: Avaliar a clareza das informações de contato.
-Contexto: Você encontrou um local que aceita eletrônicos, mas tem dúvida se eles aceitam televisores antigos (CRT).
-Tarefa: Localizar o ponto no mapa e encontrar o número de WhatsApp ou telefone para tirar a dúvida.
-Critério de Sucesso: O usuário encontra a informação de contato em no máximo 3 cliques a partir da tela inicial.
+## Cenários de Teste de Usabilidade
 
-- Cenário 5: Navegação via Mapa vs. Lista
-Objetivo: Testar a preferência e facilidade de interface.
-Contexto: Você quer ver todas as opções de doação de alimentos disponíveis na sua cidade para escolher a que parece mais organizada.
-Tarefa: Alternar entre a visão de mapa e a visão de lista para comparar as instituições cadastradas.
-Critério de Sucesso: O usuário consegue alternar o modo de visualização e identificar qual instituição está mais próxima pela lista.
+**Legenda de prioridade:** 🔴 Alta · 🟡 Média · 🔵 Baixa
+| ID | UC | Objetivo de Usabilidade | Prioridade | Passos | Resultado Esperado | Métricas Coletadas |
+|----|----|--------------------------|------------|--------|----------------------|----------------------|
+| CTU-001 | UC02 | Avaliar se o usuário identifica e visualiza as campanhas disponíveis na tela inicial sem dificuldade. | 🔴 Alta | Explore as campanhas disponíveis na tela inicial. | Usuário localiza e reconhece as campanhas listadas antes de cerca de 50% da rolagem da página, sem confusão. | Page views da Home · Profundidade de rolagem · Mapa de calor de cliques iniciais |
+| CTU-002 | UC02 | Avaliar se o usuário consegue abrir o mapa interativo e localizar campanhas próximas à sua localização. | 🔴 Alta | Abra o mapa e veja as campanhas próximas a você. | Mapa carrega corretamente e usuário identifica campanhas próximas via toque/clique nos pins, sem repetir tentativas. | Mapa de calor de cliques no mapa · Cliques mortos |
+| CTU-003 | UC03 | Avaliar se o usuário consegue aplicar filtros por tipo de doação e compreender os resultados retornados. | 🔴 Alta | Filtre as campanhas por tipo de doação (alimentos, roupas, etc.). | Filtro retorna apenas campanhas do tipo selecionado, sem cliques mortos ou retornos rápidos após aplicar. | Cliques mortos · Retornos rápidos (*quick backs*) |
+| CTU-004 | UC02 | Avaliar se o usuário consegue abrir uma campanha de interesse e visualizar seus detalhes corretamente. | 🔴 Alta | Abra uma campanha que te interessou e veja os detalhes. | Página de detalhes abre corretamente e usuário permanece nela, sem retorno rápido imediato. | Page views de `/Campanhas/Details/X` · Retornos rápidos |
+| CTU-005 | UC04 | Avaliar se o usuário consegue criar uma campanha própria preenchendo o formulário sem auxílio. | 🔴 Alta | Crie uma campanha sua (pode inventar uma situação). | Formulário de criação de campanha é preenchido e enviado com sucesso, sem erros técnicos. | Evento inteligente "Enviar formulário" · Erros de JavaScript |
+| CTU-006 | UC04 | Avaliar se o usuário consegue concluir o fluxo de doação para uma campanha específica. | 🟡 Média | Doe para uma campanha da "Instituição Teste". | Doação é solicitada com sucesso para a campanha indicada, sem cliques mortos durante o fluxo. | Evento inteligente "Enviar formulário" · Clique de saída |
+---
 
-## Métodos de coleta de dados
+## Critérios de Aprovação
 
-Para cada teste, utilizaremos uma abordagem mista:
-- Métricas Quantitativas (Observação Direta)
-Tempo por Tarefa: Cronometragem do início ao fim de cada cenário.
-- Taxa de Erro: Quantas vezes o usuário clicou em funções erradas ou se sentiu "perdido".
-- Taxa de Sucesso: Se a tarefa foi concluída 
-Métricas Qualitativas
-- Protocolo de Pensar Alto: O usuário será incentivado a verbalizar suas dúvidas e frustrações enquanto navega.
-Questionário Pós-Teste (Escala SUS - System Usability Scale):
-Eu acho que gostaria de usar esta plataforma frequentemente?
-Achei o sistema desnecessariamente complexo?
-Achei o sistema fácil de usar?
-Senti confiança ao utilizar a plataforma?
-
-## Ética e Proteção de Dados (LGPD)
-Anonimização: Os voluntários serão identificados apenas por códigos (ex: Participante 01, P02).
-Termo de Consentimento: Todos assinarão um termo autorizando a gravação da tela e áudio apenas para fins de análise acadêmica.
-Dados Sensíveis: Não serão coletados CPFs, endereços reais dos voluntários ou fotos de seus rostos na documentação final.
+| ID | Critério | Meta |
+|----|----------|------|
+| CA-01 | Taxa de conclusão das tarefas críticas sem auxílio. | ≥ 90% |
+| CA-02 | Tempo médio de conclusão dentro do limite de cada cenário. | 100% dentro do tempo |
+| CA-03 | Satisfação média no questionário pós-teste (Likert 1–5). | ≥ 4,0 |
+| CA-04 | Recomendação do sistema (nota 4 ou 5). | ≥ 80% |
+| CA-05 | Nenhum erro crítico que impeça a conclusão de tarefas. | 0 erros críticos |
